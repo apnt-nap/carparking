@@ -21,5 +21,14 @@ export function storedValue<T>(key: string) {
     return value;
   }
 
-  return { set, useValue };
+  async function get(): Promise<T | null> {
+    try {
+      const s = await AsyncStorage.getItem(key);
+      return s ? (JSON.parse(s) as T) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  return { set, get, useValue };
 }

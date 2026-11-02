@@ -45,7 +45,8 @@
           "microphonePermission": "Lets you search for malls by voice.",
           "speechRecognitionPermission": "Turns your voice search into text."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "scheme": "thaimallparking",
     "experiments": {

@@ -1,3 +1,4 @@
+import { Accessibility, ArrowDown, ArrowUp, ArrowUpDown, Baby, Car, Zap, type LucideIcon } from 'lucide-react-native';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
@@ -9,7 +10,8 @@ import { pick } from '../lib/i18n';
 import type { Route } from '../lib/route';
 import { useTheme } from '../lib/theme';
 
-const ICON: Record<Bay['type'], string> = { ev: '⚡', accessible: '♿', family: '👪', normal: '' };
+// UI-33: line icons instead of emoji
+const ICON: Record<Bay['type'], LucideIcon | null> = { ev: Zap, accessible: Accessibility, family: Baby, normal: null };
 
 interface Props {
   floor: FloorDetail;
@@ -81,16 +83,17 @@ export function FloorPlan({ floor, route, parkedBayId, onBayPress, width }: Prop
             {plan.ramps.map((r) => (
               <G key={r.id}>
                 <Rect x={r.x} y={r.y} width={r.w} height={r.h} fill={t.ramp} />
-                <SvgText x={r.x + r.w / 2} y={r.y + r.h / 2 + 0.8} fontSize={2} textAnchor="middle" fill={t.text}>
-                  {r.kind === 'entry' ? '⬇' : '⬆'}
-                </SvgText>
+                {r.kind === 'entry'
+                  ? <ArrowDown x={r.x + r.w / 2 - 1.5} y={r.y + r.h / 2 - 1.5} size={3} color={t.text} strokeWidth={2.5} />
+                  : <ArrowUp x={r.x + r.w / 2 - 1.5} y={r.y + r.h / 2 - 1.5} size={3} color={t.text} strokeWidth={2.5} />}
               </G>
             ))}
             {plan.lobbies.map((l) => (
               <G key={l.id}>
                 <Rect x={l.x} y={l.y} width={l.w} height={l.h} fill={t.lobby} rx={0.6} />
-                <SvgText x={l.x + l.w / 2} y={l.y + l.h / 2 + 0.8} fontSize={2.2} textAnchor="middle" fill={t.text}>
-                  {`🛗 ${pick(l, 'label', i18n.language)}`}
+                <ArrowUpDown x={l.x + 0.8} y={l.y + l.h / 2 - 1.1} size={2.2} color={t.text} strokeWidth={2.5} />
+                <SvgText x={l.x + l.w / 2 + 1.2} y={l.y + l.h / 2 + 0.8} fontSize={2} textAnchor="middle" fill={t.text}>
+                  {pick(l, 'label', i18n.language)}
                 </SvgText>
               </G>
             ))}
@@ -155,11 +158,10 @@ const Bays = memo(function Bays({ bays, selectedId, parkedBayId, onBayPress, lan
                 <Line x1={b.x + b.w - 0.4} y1={b.y + 0.4} x2={b.x + 0.4} y2={b.y + b.h - 0.4} stroke={t.taken} strokeWidth={0.15} />
               </>
             )}
-            {(b.type !== 'normal' || parked) && (
-              <SvgText x={b.x + b.w / 2} y={b.y + b.h / 2 + 0.6} fontSize={1.6} textAnchor="middle">
-                {parked ? '🚗' : ICON[b.type]}
-              </SvgText>
-            )}
+            {(() => {
+              const Icon = parked ? Car : ICON[b.type];
+              return Icon && <Icon x={b.x + b.w / 2 - 0.8} y={b.y + b.h / 2 - 0.8} size={1.6} color={parked ? t.amber : t.text} strokeWidth={2.5} />;
+            })()}
           </G>
         );
       })}
