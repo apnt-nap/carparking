@@ -5,3 +5,5 @@ dist/
 expo-env.d.ts
 app/ios/
 app/android/
+app/dist/
+.wslconfig

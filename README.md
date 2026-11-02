@@ -61,6 +61,22 @@ npm run app          # Expo dev server; scan the QR code with Expo Go
 5. Choose **Unregistered car** to see the ticket-machine fallback.
 6. **Withdraw consent** deletes every plate and ticket and locks the feature again.
 
+## Open the published demo (no PC needed)
+
+The offline demo is published to Expo (EAS Update, branch and channel `demo`, project `@apnt-nt/thai-mall-parking`).
+
+1. Install **Expo Go** on the phone. On an iPhone, sign in to Expo Go with an Expo account if it asks.
+2. Scan `docs/demo-qr.png` with the phone camera, or open this link on the phone:
+   `exp://u.expo.dev/b2193a87-3bba-4350-8daa-21c50afde24b?channel-name=demo`
+3. The dashboard is at https://expo.dev/accounts/apnt-nt/projects/thai-mall-parking/updates.
+
+To publish a new version after changing the app (the link stays the same):
+
+```bash
+cd app
+npx eas-cli@latest update --branch demo --message "What changed" --platform all --environment preview
+```
+
 ## Tests
 
 ```bash
