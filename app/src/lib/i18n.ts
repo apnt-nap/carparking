@@ -37,6 +37,9 @@ export const resources = {
         language: 'Language', parked: 'Where I parked', none: 'Nothing saved yet.', clear: 'Clear', open: 'Show on floor plan',
         ticketless: 'Ticketless entry', ticketlessHint: 'Register your licence plate so mall gates open without a paper ticket.',
         openTicketless: 'Set up ticketless entry',
+        dataSource: 'Data source', demo: 'Demo (on this phone)', server: 'Server (PC)',
+        demoHint: 'Sample data is simulated on this phone. No PC or internet needed.',
+        serverHint: 'Using the mock server at {{url}}. Run "npm run server" on the PC.',
       },
       terms: {
         title: 'Terms & Agreement for ticketless entry',
@@ -110,6 +113,9 @@ export const resources = {
         language: 'ภาษา', parked: 'ที่ที่ฉันจอด', none: 'ยังไม่ได้บันทึก', clear: 'ล้าง', open: 'ดูบนแผนผังชั้น',
         ticketless: 'เข้าออกไม่ต้องใช้บัตร', ticketlessHint: 'ลงทะเบียนป้ายทะเบียนรถ เพื่อให้ไม้กั้นเปิดเองโดยไม่ต้องรับบัตรจอดรถ',
         openTicketless: 'ตั้งค่าการเข้าออกไม่ต้องใช้บัตร',
+        dataSource: 'แหล่งข้อมูล', demo: 'เดโม (ในเครื่องนี้)', server: 'เซิร์ฟเวอร์ (PC)',
+        demoHint: 'ข้อมูลตัวอย่างจำลองในโทรศัพท์เครื่องนี้ ไม่ต้องใช้ PC หรืออินเทอร์เน็ต',
+        serverHint: 'ใช้เซิร์ฟเวอร์จำลองที่ {{url}} ให้รัน "npm run server" บน PC',
       },
       terms: {
         title: 'ข้อกำหนดและข้อตกลงการเข้าออกไม่ต้องใช้บัตร',

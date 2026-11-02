@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import WebSocket from 'ws';
-import { MockParkingProvider } from '../src/mockProvider.js';
+import { loadMockProvider } from '../src/loadMock.js';
 import { buildServer } from '../src/server.js';
 import { mulberry32 } from '../src/simulator.js';
 
 let clock = new Date('2026-11-07T07:00:00Z'); // Saturday 14:00 in Bangkok
-const provider = MockParkingProvider.fromDir(new URL('../data/', import.meta.url), { now: () => clock, rng: mulberry32(7) });
+const provider = loadMockProvider(new URL('../data/', import.meta.url), { now: () => clock, rng: mulberry32(7) });
 const app = buildServer(provider, { logger: false });
 const user = { 'x-user-id': 'test-user' };
 
@@ -97,5 +97,19 @@ describe('API §6', () => {
 
     expect((await app.inject({ method: 'DELETE', url: `/plates/${plate.id}`, headers: user })).statusCode).toBe(204);
     expect((await app.inject({ url: '/tickets', headers: user })).json()).toEqual([]);
+  });
+});
+
+describe('MockParkingProvider state (used by the app demo mode)', () => {
+  it('snapshot and restore keep plates and tickets', async () => {
+    const a = loadMockProvider(new URL('../data/', import.meta.url), { newId: (() => { let n = 0; return () => `id${++n}`; })() });
+    const plate = await a.registerPlate('u1', 'กข 12', 'ชลบุรี');
+    await a.gateEvent({ mall_id: 'iconsiam', plate_number: 'กข12', province: 'ชลบุรี', direction: 'entry' });
+    expect(plate.id).toBe('id1');
+
+    const b = loadMockProvider(new URL('../data/', import.meta.url));
+    b.restore(a.snapshot());
+    expect(await b.listPlates('u1')).toEqual([plate]);
+    expect((await b.listTickets('u1'))[0]).toMatchObject({ id: 'id2', status: 'open', mall_id: 'iconsiam' });
   });
 });

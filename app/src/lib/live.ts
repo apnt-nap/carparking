@@ -1,6 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { WS_BASE, type BayChange, type FloorDetail } from './api';
+import { getMode } from './dataSource';
+import { localProvider } from './localProvider';
 
 /** Apply live bay changes to a floor (FR-11). Returns the same object when nothing applies. */
 export function applyChanges(floor: FloorDetail, changes: BayChange[]): FloorDetail {
@@ -15,21 +17,36 @@ export function applyChanges(floor: FloorDetail, changes: BayChange[]): FloorDet
   };
 }
 
-/** Subscribes to WS /live for one floor and patches the cached floor query. Reconnects after drops. */
+/**
+ * Live bay changes for one floor, patched into the cached floor query.
+ * Demo mode listens to the on-phone simulator; server mode uses WS /live and reconnects after drops.
+ */
 export function useLiveFloor(floorId: string) {
   const qc = useQueryClient();
   const [connected, setConnected] = useState(false);
   useEffect(() => {
+    const patch = (changes: BayChange[]) =>
+      qc.setQueryData<FloorDetail>(['floor', floorId], (old) => (old ? applyChanges(old, changes) : old));
+    let closed = false;
+
+    if (getMode() === 'demo') {
+      let off: (() => void) | undefined;
+      localProvider().then((p) => {
+        if (closed) return;
+        off = p.onBayChanges(patch);
+        setConnected(true);
+      });
+      return () => { closed = true; off?.(); };
+    }
+
     let ws: WebSocket | undefined;
     let retry: ReturnType<typeof setTimeout> | undefined;
-    let closed = false;
     const connect = () => {
       ws = new WebSocket(`${WS_BASE}/live?floor=${encodeURIComponent(floorId)}`);
       ws.onopen = () => setConnected(true);
       ws.onmessage = (e) => {
         const msg = JSON.parse(String(e.data));
-        if (msg.type !== 'bay_changes') return;
-        qc.setQueryData<FloorDetail>(['floor', floorId], (old) => (old ? applyChanges(old, msg.changes) : old));
+        if (msg.type === 'bay_changes') patch(msg.changes);
       };
       ws.onclose = () => {
         setConnected(false);

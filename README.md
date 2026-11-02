@@ -38,6 +38,9 @@ To regenerate floor plans after editing `malls.json`: `npm run generate -w serve
 
 ## Run the app
 
+**Demo mode (default):** the app simulates the malls on the phone, so you don't need to run the server or have any network setup. Settings → Data source switches to "Server (PC)" if you want to use `npm run server` instead.
+
+
 Start the server first (above), then in a second terminal:
 
 ```bash

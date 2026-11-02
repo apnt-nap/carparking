@@ -1,8 +1,6 @@
-import { randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
 import { calculateFee } from './fees.js';
 import { availability, distanceKm } from './geo.js';
-import { plateKey } from './plates.js';
+import { plateKey } from './plateFormat.js';
 import type { ParkingProvider } from './provider.js';
 import { createMallSearch } from './search.js';
 import { mulberry32, stepFloor, targetOccupancy, type Rng } from './simulator.js';
@@ -11,27 +9,40 @@ import type {
   MallBase, MallDetail, MallSummary, Origin, Plate, Ticket,
 } from './types.js';
 
-interface Options {
+export interface MockOptions {
   now?: () => Date;
   rng?: Rng;
+  /** Id generator; defaults to crypto.randomUUID (Node). The app passes its own because Hermes has no crypto. */
+  newId?: () => string;
 }
 
-/** Simulated data source: in-memory malls, floors and bays, with a simulator that changes bay status (spec §3). */
+/** Plates and tickets, so a caller can save and restore them (the app keeps them on the phone). */
+export interface MockState {
+  plates: Plate[];
+  tickets: Ticket[];
+}
+
+/**
+ * Simulated data source: in-memory malls, floors and bays, with a simulator that changes bay status (spec §3).
+ * Uses no Node modules, so the app's offline demo mode runs this same class on the phone.
+ */
 export class MockParkingProvider implements ParkingProvider {
   private readonly malls = new Map<string, MallBase>();
   private readonly floors = new Map<string, FloorSpec>();
   private readonly bays = new Map<string, Bay[]>();
   private readonly listeners = new Set<(c: BayChange[]) => void>();
-  private readonly plates: Plate[] = [];
-  private readonly tickets: Ticket[] = [];
+  private plates: Plate[] = [];
+  private tickets: Ticket[] = [];
   private readonly searchIds: (q: string) => string[];
   private readonly now: () => Date;
   private readonly rng: Rng;
-  private timer?: NodeJS.Timeout;
+  private readonly newId: () => string;
+  private timer?: ReturnType<typeof setInterval>;
 
-  constructor(malls: MallBase[], floors: FloorSpec[], opts: Options = {}) {
+  constructor(malls: MallBase[], floors: FloorSpec[], opts: MockOptions = {}) {
     this.now = opts.now ?? (() => new Date());
     this.rng = opts.rng ?? Math.random;
+    this.newId = opts.newId ?? (() => globalThis.crypto.randomUUID());
     for (const m of malls) this.malls.set(m.id, m);
     const start = this.now();
     for (const f of floors) {
@@ -46,9 +57,13 @@ export class MockParkingProvider implements ParkingProvider {
     this.searchIds = createMallSearch(malls);
   }
 
-  static fromDir(dataDir: URL, opts?: Options): MockParkingProvider {
-    const read = (name: string) => JSON.parse(readFileSync(new URL(name, dataDir), 'utf8'));
-    return new MockParkingProvider(read('malls.json').malls, read('floors.json').floors, opts);
+  snapshot(): MockState {
+    return { plates: this.plates.map((p) => ({ ...p })), tickets: this.tickets.map((t) => ({ ...t })) };
+  }
+
+  restore(state: MockState): void {
+    this.plates = state.plates.map((p) => ({ ...p }));
+    this.tickets = state.tickets.map((t) => ({ ...t }));
   }
 
   /** FR-11: ticks well under the 5 s limit. */
@@ -141,7 +156,7 @@ export class MockParkingProvider implements ParkingProvider {
     const existing = this.plates.find((p) => p.user_id === userId && plateKey(p.number, p.province) === key);
     if (existing) return existing;
     const plate: Plate = {
-      id: randomUUID(), user_id: userId, number: number.trim().replace(/\s+/g, ' '), province: province.trim(),
+      id: this.newId(), user_id: userId, number: number.trim().replace(/\s+/g, ' '), province: province.trim(),
       consent_at: this.now().toISOString(),
     };
     this.plates.push(plate);
@@ -174,7 +189,7 @@ export class MockParkingProvider implements ParkingProvider {
     if (e.direction === 'entry') {
       if (open) return { action: 'open_gate', ticket: open }; // repeated read at the gate
       const ticket: Ticket = {
-        id: randomUUID(), plate_id: plate.id, mall_id: mall.id, entry_at: at.toISOString(), exit_at: null,
+        id: this.newId(), plate_id: plate.id, mall_id: mall.id, entry_at: at.toISOString(), exit_at: null,
         fee_thb: 0, validated: false, status: 'open',
       };
       this.tickets.push(ticket);

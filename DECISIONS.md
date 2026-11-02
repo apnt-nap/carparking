@@ -41,3 +41,13 @@ Non-obvious choices, with the spec section they relate to.
 - **Plate check.** The app shows the server's validation result (the server is the trust boundary) as a friendly Thai or English message, instead of duplicating the regex in the app.
 - **Gate simulator (FR-25)** is hidden behind a long-press on the "My licence plates" title. It can also send an "unregistered car" to show the FR-24 fallback.
 - **E-tickets** refresh every 10 s, so the running fee goes up while the screen is open. The spec's §10 suggestion of alerting the user on every entry (against cloned plates) would need push notifications. That is not built yet.
+
+## Offline demo mode
+
+- **Why.** Asia wants to show the app without a PC: a phone can't reach the mock server inside WSL, and a demo shouldn't depend on Wi-Fi.
+- **How.** The app runs the server's own `MockParkingProvider` on the phone, through `LocalParkingProvider` in `app/src/lib/localProvider.ts`. It's the same `ParkingProvider` interface (NFR-3), the same simulator, search, fees, plate checks and gate logic, and the same generated mall and floor JSON, bundled into the app (it adds about 0.4 MB). This avoids keeping a second copy of the logic in the app.
+- **Server code changes that made this possible.** `mockProvider.ts` no longer imports Node modules. Loading from files moved to `loadMock.ts`, plate rules moved to `plateFormat.ts`, and ids come from an injectable `newId`. `snapshot()` and `restore()` were added for saving state.
+- **Default.** Demo mode is on unless `EXPO_PUBLIC_API_URL` is set. Settings → Data source switches between "Demo (on this phone)" and "Server (PC)", and the choice is saved. Switching resets cached data.
+- **Saved on the phone.** Plates and tickets are saved in AsyncStorage (`app.demoState`), together with consent and the parked spot. Bay occupancy is re-simulated at each launch, like a live feed.
+- **Imports.** The server's TypeScript uses Node-style `./x.js` imports. `app/metro.config.js` drops the `.js` for imports inside `server/src`, and Jest does the same with `moduleNameMapper`.
+- **Server mode** still works as before (HTTP plus `WS /live`).

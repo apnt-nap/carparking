@@ -48,6 +48,9 @@
     ],
     "testMatch": [
       "<rootDir>/test/**/*.test.ts?(x)"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    }
   }
 }

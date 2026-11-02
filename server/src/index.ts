@@ -1,7 +1,7 @@
-import { MockParkingProvider } from './mockProvider.js';
+import { loadMockProvider } from './loadMock.js';
 import { buildServer } from './server.js';
 
-const provider = MockParkingProvider.fromDir(new URL('../data/', import.meta.url));
+const provider = loadMockProvider(new URL('../data/', import.meta.url));
 provider.start(Number(process.env.SIM_INTERVAL_MS ?? 3000));
 
 const app = buildServer(provider);
