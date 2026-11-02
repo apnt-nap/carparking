@@ -7,3 +7,7 @@ app/ios/
 app/android/
 app/dist/
 .wslconfig
+.env*
+*.pem
+*.p12
+*.key
