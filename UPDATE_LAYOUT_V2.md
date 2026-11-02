@@ -57,6 +57,41 @@ This tab holds everything about ticketless entry **except adding a plate**, whic
   3. Pay from your balance before leaving, or it's paid automatically at the exit gate if your balance covers it.
   4. If the plate isn't read, use the normal ticket machine.
 
+### A3b. Parking status, history and prices (added after Asia's reference screenshot)
+
+**My parking (session card)**
+- UI-35 **My parking card**, inspired by the left screen of Asia's reference. It shows:
+  - a status chip: **Parked** (green) or **Left** (grey),
+  - the plate number with the car model and colour, if the user added them,
+  - mall, floor, zone and bay (e.g. "ICONSIAM · B2 · Zone C · C14"),
+  - the entry time,
+  - a **large live elapsed timer** (`hh:mm:ss`, tabular digits),
+  - the **running fee**.
+
+  It appears at the top of the Parking & Pay tab. While the user is parked, the Map tab also shows a compact banner version ("Parked at ICONSIAM · 01:50:59 · 60 ฿"); tapping it opens the card.
+- UI-36 **Status changes.** When the car exits (gate simulator, or "End parking" in the demo), the status changes to **Left** and the card shows the exit time, total time and amount paid. The app shows a short in-app message: "You left ICONSIAM · 2 h 10 min · 60 ฿ paid". Entering shows "You entered ICONSIAM at 14:05".
+- UI-37 **Card actions** as pill buttons:
+  - **Navigate to my car** (outlined): opens the floor plan with the parked bay highlighted and a route to it.
+  - **Pay** / **End parking** (filled): pays from the wallet (UI-16). In the demo, End parking also simulates leaving through the gate.
+- UI-38 **Car details and illustration.** When adding a plate (Account), the user can optionally add a car model and colour. If a colour is set, the card shows a top-down car illustration (a generic vector drawing, tinted with that colour). This is a nice-to-have, not required.
+- UI-39 **Where the bay comes from.** The floor, zone and bay come from "I parked here" (FR-15). If none is saved, the card shows "Set where you parked", which opens the floor plan of that mall.
+
+**History**
+- UI-40 **Parking history:** a list of past visits, newest first, each with mall, date, entry and exit time, duration and amount paid. Tapping a visit shows its details (the same layout as the session card, with status Left). This replaces the simple list in UI-19.
+
+**Mall prices**
+- UI-41 **Price shown everywhere a mall is listed:** the mall card (FR-3), the mall screen (FR-8), the search pop-up rows (UI-5, UI-6) and the Nearby sheet all show the parking price in a short form, e.g. "20 ฿/hr · first 2 hr free with purchase".
+- UI-42 **Prices view:** from the Nearby sheet, a "Prices" option compares all malls in one list: hourly rate, free period, free period with purchase, and opening hours. It can be sorted by price or by distance.
+- UI-43 **Mall list cards** (inspired by the right screen of Asia's reference): the Nearby sheet shows each mall as a rounded card with:
+  - an image tile (a placeholder illustration in the demo; no copyrighted photos),
+  - the mall name and area,
+  - "X spots available" in green, "Filling up" in amber, or "Full" in red, always with text,
+  - the price per hour,
+  - a filled pill button **Choose a spot**, which opens the mall's best floor (the "Best choice" from FR-6) with the suggested bay.
+
+**Login**
+- UI-44 **Login with email is prominent.** The top of the Account tab is a profile card: "Log in with email" when signed out, or name and email when signed in. Ticketless entry, the wallet and history need login; the map and floor plans don't. It stays a demo login stored on the phone (UI-21).
+
 ### A4. Account tab (right)
 
 - UI-21 **Login with email (demo):** sign up and log in with email and password. In the demo, accounts are stored on the phone only. Show a clear "Demo account, stored on this phone" note. The profile shows email and display name, with a log out button.
@@ -75,7 +110,8 @@ This tab holds everything about ticketless entry **except adding a plate**, whic
 Account   { id, email, display_name, password_hash, created_at }        // demo: on device
 Wallet    { account_id, balance_thb }
 WalletTx  { id, account_id, type (topup|payment|refund), amount_thb, method (promptpay|card|wallet), ticket_id?, created_at }
-Ticket    + { paid_at?, paid_from (wallet|gate) }
+Ticket    + { paid_at?, paid_from (wallet|gate), floor_id?, zone?, bay_id? }
+Plate     + { car_model?, car_color? }
 ```
 
 ### A6. Non-functional
@@ -100,14 +136,33 @@ Ticket    + { paid_at?, paid_from (wallet|gate) }
 - UI-33 A proper icon set instead of emoji for navigation, actions and bay types (for example `@expo/vector-icons` or `expo-symbols`), with emoji kept only where they add personality.
 - UI-34 Gentle motion: pop-ups and sheets slide and fade (about 200–250 ms), buttons give a press feedback, and live values (amount due, free spaces) change smoothly. Motion is reduced when the phone's "Reduce motion" setting is on.
 
-### A6c. Design questions for Asia (to confirm before building)
+### A6c. Design decisions (confirmed by Asia, 2 Nov 2026)
 
-1. **Style direction:** clean minimal (white/neutral, one accent colour), glass (frosted see-through panels over the map), bold and colourful (gradients, big rounded cards, like Grab or LINE MAN), or Material You (soft tinted surfaces, Android style)?
-2. **Main colour:** blue, green, purple, orange, or a specific brand colour (hex code)?
-3. **Font:** the phone's system font, or a Thai-friendly custom font such as Prompt, IBM Plex Sans Thai, or Noto Sans Thai?
-4. **Icons:** a proper icon set, or keep emoji?
-5. **Dark map:** should the map itself go dark in dark mode?
-6. **Reference:** any app whose look you like?
+- **Style:** clean minimal, like Apple Maps, taking the **United Airlines app** as the reference for feel. That means calm screens, lots of white space, navy headers and accents, thin clean icons, and few decorations. Take the feel only: don't copy United's logo, artwork or exact layouts.
+- **Palette:** dark navy blue (primary), light/sky blue (accent) and white. Green, amber and red are used **only** for availability and status.
+- **Font:** IBM Plex Sans Thai, which covers Thai and English (via `@expo-google-fonts/ibm-plex-sans-thai`). It falls back to the system font while loading, and can be changed later in one place.
+- **Icons:** a clean line icon set, `lucide-react-native` (or Ionicons outline). No emoji in the UI.
+- **Dark mode:** the map itself turns dark (a dark map style), and so do the floor plans.
+- **Tab bar** (from Asia's reference): the active tab is a filled navy circle with a white icon; the other tabs are thin outline icons. The middle Parking & Pay tab keeps UI-1's emphasis.
+- **Buttons** (from the reference): full pill shape, 48 pt high. Primary buttons are filled navy (sky blue in dark mode); secondary buttons are outlined.
+
+**Colour tokens** (contrast ratios checked against WCAG AA; ratios are against the background in brackets)
+
+| Token | Light | Dark | Use |
+|---|---|---|---|
+| background | `#FFFFFF` | `#0A1424` | Screen background |
+| surface | `#F3F6FA` | `#12203A` | Cards, sheets, search pill |
+| surfaceElevated | `#FFFFFF` + shadow | `#1A2B4A` | Pop-ups, floating buttons |
+| text | `#0B1B33` (17.2:1) | `#EAF1FB` (16.2:1) | Body text |
+| textMuted | `#4A5B73` (6.4:1 on surface) | `#9FB0C8` (7.4:1 on surface) | Captions, secondary text |
+| border | `#D6DEE8` | `#26385A` | Dividers, outlines |
+| primary | `#0B2A4A` navy (white text 14.5:1) | `#4DA3FF` sky (navy text 7.0:1) | Main buttons, active tab, headers |
+| accent | `#4DA3FF` sky, as a fill only (2.6:1 on white, too low for text) | `#7CC0FF` (8.4:1 on surface) | Highlights, selected states, route line |
+| accentText | `#1E64C8` (5.7:1) | `#7CC0FF` | Links and accent-coloured text |
+| accentTint | `#E6F1FF` (navy text 12.7:1) | `#173257` | Selected chips, info banners |
+| success / free | `#1B7F3B` (5.1:1) | `#5FD38A` (8.6:1) | Free spaces, paid |
+| warning / filling | `#9A5B00` (5.4:1) | `#FFC266` (10.2:1) | Filling up, low balance |
+| danger / full | `#C62828` (5.6:1) | `#FF7A7A` (6.4:1) | Full, errors |
 
 ### A7. Out of scope
 
@@ -124,16 +179,41 @@ Copy everything below the line into Claude Code in the `project parking` folder.
 Read `SYSTEM_REQUIREMENTS.md`, `DECISIONS.md` and `UPDATE_LAYOUT_V2.md`. Implement Part A of `UPDATE_LAYOUT_V2.md` in the existing Expo app. Where it conflicts with the original spec, `UPDATE_LAYOUT_V2.md` wins.
 
 Work in this order, committing after each step:
-1. **Navigation:** three bottom tabs (Map, Parking & Pay, Account) with the middle tab emphasised (UI-1, UI-2). Move existing screens into the right tabs.
-2. **Map tab:** floating rounded search bar with the mic inside, a pop-up showing 3 nearest malls or the top 3 matches, right-side floating buttons (My location, Nearby sheet), and name-plus-free-count map labels (UI-3 to UI-13). Use custom marker views for the labels and handle overlap when zoomed out.
-2b. **Theme and design system:** theme tokens, System/Light/Dark setting, dark map style, icon set, type scale and motion (UI-27 to UI-34), following Asia's answers in A6c. Apply them to every existing and new screen.
-3. **Account tab:** demo email login, wallet and balance, demo top-up (PromptPay placeholder and test card 4242 only, never store card details), ticketless entry setup with Terms & Agreement and plates, demo tools, settings (UI-21 to UI-26). Store everything on the device with AsyncStorage. Hash demo passwords.
-4. **Parking & Pay tab:** locked state, active ticket with live amount due, Pay from wallet, wallet summary, read-only plates, history, and the "How paying works" pop-up (UI-14 to UI-20).
-5. **Data:** add Account, Wallet and WalletTx to the LocalParkingProvider and the server provider (A5). Keep the ParkingProvider interface as the only data access point.
+1. **Theme and design system** (UI-27 to UI-34, A6c): set up the colour tokens from the A6c table for light and dark, the System/Light/Dark setting, IBM Plex Sans Thai, lucide line icons (no emoji), the spacing, corner and type scales, pill buttons, motion with reduced-motion support, a dark map style, and dark floor plans. Do this first so every later screen uses it.
+2. **Navigation** (UI-1, UI-2, A6c tab bar): three bottom tabs (Map, Parking & Pay, Account). The active tab is a filled navy circle; the others are outline icons; the middle tab is emphasised. Move existing screens into the right tabs.
+3. **Data** (A5): add Account, Wallet, WalletTx, the ticket's paid/bay fields and the plate's car fields to the ParkingProvider interface, MockParkingProvider (server) and LocalParkingProvider (demo, saved with AsyncStorage). Keep ParkingProvider as the only data access point.
+4. **Map tab** (UI-3 to UI-13, UI-41 to UI-43):
+   - floating rounded search bar with the mic inside,
+   - pop-up with the 3 nearest malls or the top 3 matches, each with price,
+   - right-side floating buttons (My location, Nearby sheet),
+   - name-plus-free-count map labels, with overlap handling when zoomed out,
+   - Nearby sheet with mall cards ("Choose a spot") and a Prices view,
+   - compact "parked" banner (UI-35).
+5. **Account tab** (UI-21 to UI-26, UI-38, UI-44):
+   - profile card with demo email login at the top (hash demo passwords),
+   - wallet and balance, and demo top-up (PromptPay placeholder and test card 4242 only; never store card details),
+   - ticketless entry setup with Terms & Agreement, and plates with optional car model and colour,
+   - demo tools and settings, including the theme setting.
+6. **Parking & Pay tab** (UI-14 to UI-20, UI-35 to UI-40):
+   - locked state,
+   - My parking session card (status chip, plate and car, mall/floor/zone/bay, live `hh:mm:ss` timer, running fee, "Navigate to my car" and "Pay"/"End parking" pill buttons, optional car illustration),
+   - Parked → Left status change with in-app messages,
+   - wallet summary, read-only plates, parking history with detail, and the "How paying works" pop-up.
 
 Rules:
 - Tag commits, tests and code comments with requirement IDs (UI-x, NFR-x).
-- Add tests for: the 3-nearest search pop-up, wallet top-up and payment (including insufficient balance), paying a ticket, that adding a plate is only possible from Account, and that ticketless entry stays locked until both consent ticks are given.
+- Add tests for:
+  - the 3-nearest search pop-up,
+  - wallet top-up and payment, including insufficient balance,
+  - paying a ticket,
+  - that adding a plate is only possible from Account,
+  - that ticketless entry stays locked until both consent ticks are given,
+  - the session card's live timer and running fee,
+  - the Parked → Left status change (exit time, total time and amount paid shown),
+  - that history lists past visits newest first,
+  - that price text appears on mall cards and in the Prices view,
+  - that the theme setting switches tokens between light and dark,
+  - that every colour token pair in A6c meets WCAG AA (a small contrast-ratio test).
 - Run tests, the type-check and expo-doctor before each commit.
 - Update README.md's requirement checklist and note decisions in DECISIONS.md.
 - When done, re-publish the demo to the existing "demo" channel so the same QR code shows the new version, then report what changed.
