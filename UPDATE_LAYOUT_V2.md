@@ -86,6 +86,29 @@ Ticket    + { paid_at?, paid_from (wallet|gate) }
 - NFR-9 No real payments or real card storage in the demo. A real version would use a licensed payment provider (for example Omise or 2C2P for Thai cards and PromptPay).
 - NFR-10 The demo keeps working fully offline, and the published Expo link stays the same.
 
+### A6b. Modern design and light/dark mode
+
+**Themes**
+- UI-27 The app has three theme settings in Account → Settings: **System** (default, follows the phone), **Light** and **Dark**. The choice is saved and applies straight away, with no restart.
+- UI-28 Every screen, pop-up, sheet, map label, floor plan and the tab bar uses shared theme tokens (background, surface, elevated surface, text, muted text, border, accent, success, warning, danger). No hard-coded colours in screens.
+- UI-29 In dark mode, the map also switches to a dark map style, and the floor plan uses dark surfaces with the same free/taken/route meaning.
+- UI-30 Text and important icons meet WCAG AA contrast (4.5:1 for body text) in both themes. Availability colours stay distinguishable in both themes and are always paired with text or an icon (NFR-4).
+
+**Modern look** (style details to be confirmed with Asia, see A6c)
+- UI-31 A consistent design system: a spacing scale (4/8/12/16/24 pt), corner radii (12 pt for small items, 16–24 pt for cards and sheets, full pill for the search bar and buttons), soft layered shadows in light mode and lighter surfaces instead of shadows in dark mode.
+- UI-32 Clear type hierarchy: large bold screen titles, medium section titles, regular body text, and small captions, all supporting Thai and English without clipping Thai vowel and tone marks.
+- UI-33 A proper icon set instead of emoji for navigation, actions and bay types (for example `@expo/vector-icons` or `expo-symbols`), with emoji kept only where they add personality.
+- UI-34 Gentle motion: pop-ups and sheets slide and fade (about 200–250 ms), buttons give a press feedback, and live values (amount due, free spaces) change smoothly. Motion is reduced when the phone's "Reduce motion" setting is on.
+
+### A6c. Design questions for Asia (to confirm before building)
+
+1. **Style direction:** clean minimal (white/neutral, one accent colour), glass (frosted see-through panels over the map), bold and colourful (gradients, big rounded cards, like Grab or LINE MAN), or Material You (soft tinted surfaces, Android style)?
+2. **Main colour:** blue, green, purple, orange, or a specific brand colour (hex code)?
+3. **Font:** the phone's system font, or a Thai-friendly custom font such as Prompt, IBM Plex Sans Thai, or Noto Sans Thai?
+4. **Icons:** a proper icon set, or keep emoji?
+5. **Dark map:** should the map itself go dark in dark mode?
+6. **Reference:** any app whose look you like?
+
 ### A7. Out of scope
 
 Real payment processing, real user accounts on a server, push notifications.
@@ -103,6 +126,7 @@ Read `SYSTEM_REQUIREMENTS.md`, `DECISIONS.md` and `UPDATE_LAYOUT_V2.md`. Impleme
 Work in this order, committing after each step:
 1. **Navigation:** three bottom tabs (Map, Parking & Pay, Account) with the middle tab emphasised (UI-1, UI-2). Move existing screens into the right tabs.
 2. **Map tab:** floating rounded search bar with the mic inside, a pop-up showing 3 nearest malls or the top 3 matches, right-side floating buttons (My location, Nearby sheet), and name-plus-free-count map labels (UI-3 to UI-13). Use custom marker views for the labels and handle overlap when zoomed out.
+2b. **Theme and design system:** theme tokens, System/Light/Dark setting, dark map style, icon set, type scale and motion (UI-27 to UI-34), following Asia's answers in A6c. Apply them to every existing and new screen.
 3. **Account tab:** demo email login, wallet and balance, demo top-up (PromptPay placeholder and test card 4242 only, never store card details), ticketless entry setup with Terms & Agreement and plates, demo tools, settings (UI-21 to UI-26). Store everything on the device with AsyncStorage. Hash demo passwords.
 4. **Parking & Pay tab:** locked state, active ticket with live amount due, Pay from wallet, wallet summary, read-only plates, history, and the "How paying works" pop-up (UI-14 to UI-20).
 5. **Data:** add Account, Wallet and WalletTx to the LocalParkingProvider and the server provider (A5). Keep the ParkingProvider interface as the only data access point.
@@ -113,4 +137,5 @@ Rules:
 - Run tests, the type-check and expo-doctor before each commit.
 - Update README.md's requirement checklist and note decisions in DECISIONS.md.
 - When done, re-publish the demo to the existing "demo" channel so the same QR code shows the new version, then report what changed.
+- Check both themes on every screen (screenshots or a test that renders key screens in light and dark).
 - Start by showing me a short plan and wait for my OK before writing code.
