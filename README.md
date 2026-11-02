@@ -14,6 +14,7 @@ Non-obvious choices are explained in [DECISIONS.md](DECISIONS.md).
 | `app/` | React Native + Expo app (Expo Router, TypeScript) |
 | `app/src/app/` | Screens: map, search, settings, mall, floor |
 | `app/src/lib/route.ts` | Shortest route on the one-way lane graph (FR-12) |
+| `app/src/app/plates.tsx`, `tickets.tsx`, `sim-gate.tsx` | Ticketless entry: terms, plates, e-tickets, gate simulator |
 
 ## Run the server
 
@@ -47,6 +48,15 @@ npm run app          # Expo dev server; scan the QR code with Expo Go
 - **Development build**, which includes voice search (FR-17): `cd app && npx expo run:android` or `npx expo run:ios` (needs Android Studio or Xcode), or `npx eas-cli@latest build --profile development`.
 - The app finds the server automatically at the dev machine's address on port 3000. To use another address, set `EXPO_PUBLIC_API_URL=http://<ip>:3000` before `npm run app`.
 - **Using WSL on Windows:** a phone can't reach a server inside WSL by default. Either run `npm run app` with `--tunnel` and set `EXPO_PUBLIC_API_URL` to an address the phone can reach, turn on WSL mirrored networking (`networkingMode=mirrored` in `.wslconfig`), or run both commands from Windows PowerShell.
+
+## Try ticketless entry (phase 2, simulated)
+
+1. **Settings → Set up ticketless entry.** Read the Terms & Agreement, tick both boxes, then accept.
+2. Add a plate, e.g. `1กก 1234`, province `กรุงเทพมหานคร`.
+3. **Long-press the "My licence plates" title** to open the hidden gate simulator. Pick a mall and your plate, then send an **Entry** event: the gate opens and an e-ticket appears under **My e-tickets** with a running fee.
+4. Send an **Exit** event (with or without purchase validation): the ticket closes with the final fee.
+5. Choose **Unregistered car** to see the ticket-machine fallback.
+6. **Withdraw consent** deletes every plate and ticket and locks the feature again.
 
 ## Tests
 
@@ -84,19 +94,19 @@ npm run typecheck    # tsc --noEmit for both
 | FR-18 | Search results | ✅ | Search tab, `MallRow.tsx` |
 | FR-19 | Thai and English UI | ✅ | `app/src/lib/i18n.ts`, Settings, `test/i18n.test.ts` |
 | FR-20 | Names stored in both languages | ✅ | `malls.json`, `floors.json` |
-| FR-21 | Plate registration with PDPA consent | 🟡 | `POST /plates` (consent required) |
-| FR-22 | Entry opens gate, e-ticket | 🟡 | `POST /sim/gate`, `GET /tickets` |
-| FR-23 | Exit fee and close ticket | 🟡 | `POST /sim/gate` |
-| FR-24 | Fallback to ticket machine | 🟡 | `fallback_ticket` result |
-| FR-25 | Simulate gate screen | 🟡 | Endpoint done; screen is Milestone 3 |
+| FR-21 | Plate registration with PDPA consent | ✅ | Terms & Agreement + PDPA screen (`TermsForm.tsx`) unlocks `app/src/app/plates.tsx`; server also requires `consent: true` |
+| FR-22 | Entry opens gate, e-ticket | ✅ | `POST /sim/gate`; `app/src/app/tickets.tsx` shows mall, entry time, running fee |
+| FR-23 | Exit fee and close ticket | ✅ | Exit event closes the ticket with the fee (purchase validation optional) |
+| FR-24 | Fallback to ticket machine | ✅ | Unregistered or unread plates get "Use the ticket machine" |
+| FR-25 | Simulate gate screen | ✅ | `app/src/app/sim-gate.tsx`, opened by long-pressing "My licence plates" |
 | NFR-1 | iOS and Android, one codebase | ✅ | Expo; Android bundle builds (`npx expo export`) |
 | NFR-2 | Map and list under 2 s | 🟡 | One small request per screen; not measured on a real 4G phone yet |
 | NFR-3 | `ParkingProvider` interface | ✅ | `server/src/provider.ts`, `server/src/mockProvider.ts` |
 | NFR-4 | Light/dark, 44 pt, not colour-only | ✅ | `app/src/lib/theme.ts`, `ui.tsx`; screen-reader labels on bays and markers |
-| NFR-5 | Plates hashed in logs, deletable | 🟡 | `hashPlate`, `DELETE /plates/:id`; app screen is Milestone 3 |
+| NFR-5 | Plates hashed in logs, deletable | ✅ | `hashPlate` in logs; delete a plate, or withdraw consent to delete all |
 
 ## Milestones
 
 1. ✅ Mock data and mock server
 2. ✅ Main app
-3. ⬜ Plate registration and simulated ticketless entry
+3. ✅ Plate registration and simulated ticketless entry

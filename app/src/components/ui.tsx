@@ -4,24 +4,44 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View, type StyleProp, t
 import { TOUCH, useTheme } from '../lib/theme';
 
 /** Button with a 44 pt minimum touch target (NFR-4). */
-export function Button({ label, onPress, primary, selected, style, accessibilityLabel }: {
-  label: string; onPress: () => void; primary?: boolean; selected?: boolean; style?: StyleProp<ViewStyle>; accessibilityLabel?: string;
+export function Button({ label, onPress, primary, selected, disabled, danger, style, accessibilityLabel }: {
+  label: string; onPress: () => void; primary?: boolean; selected?: boolean; disabled?: boolean; danger?: boolean;
+  style?: StyleProp<ViewStyle>; accessibilityLabel?: string;
 }) {
   const t = useTheme();
   const filled = primary || selected;
+  const colour = danger ? t.red : t.accent;
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
       accessibilityRole="button"
-      accessibilityState={selected === undefined ? undefined : { selected }}
+      accessibilityState={{ selected, disabled }}
       accessibilityLabel={accessibilityLabel ?? label}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: filled ? t.accent : t.card, borderColor: t.accent, opacity: pressed ? 0.7 : 1 },
+        { backgroundColor: filled ? colour : t.card, borderColor: colour, opacity: disabled ? 0.4 : pressed ? 0.7 : 1 },
         style,
       ]}
     >
-      <Text style={{ color: filled ? t.onAccent : t.accent, fontWeight: '600' }}>{label}</Text>
+      <Text style={{ color: filled ? t.onAccent : colour, fontWeight: '600' }}>{label}</Text>
+    </Pressable>
+  );
+}
+
+/** Tick box with a 44 pt target; the glyph changes as well as the colour (NFR-4). */
+export function Checkbox({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  const t = useTheme();
+  return (
+    <Pressable
+      onPress={() => onChange(!checked)}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked }}
+      accessibilityLabel={label}
+      style={styles.check}
+    >
+      <Text style={{ fontSize: 24, color: checked ? t.accent : t.muted }}>{checked ? '☑' : '☐'}</Text>
+      <Text style={{ color: t.text, flex: 1 }}>{label}</Text>
     </Pressable>
   );
 }
@@ -60,5 +80,6 @@ export function QueryState({ loading, error, onRetry, children }: {
 export const styles = StyleSheet.create({
   button: { minHeight: TOUCH, minWidth: TOUCH, paddingHorizontal: 14, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', gap: 8 },
+  check: { minHeight: TOUCH, flexDirection: 'row', alignItems: 'center', gap: 10 },
   flex: { flex: 1 },
 });

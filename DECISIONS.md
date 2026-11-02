@@ -32,6 +32,12 @@ Non-obvious choices, with the spec section they relate to.
 - **Maps.** `react-native-maps` uses Apple Maps on iOS and Google Maps on Android. Expo Go works without setup, but an Android release build needs a Google Maps API key in `app.json`.
 - **Not measured yet:** NFR-2 (under 2 s on 4G) needs a real phone. Each screen makes a single small request.
 
-## Milestone 3 (decided ahead)
+## Milestone 3
 
 - **Consent (FR-21).** Asia decided that users must register and accept a Terms & Agreement screen (including PDPA consent) before plate entry can be used. The feature stays locked until they accept. For the prototype, the existing server check (`consent: true` required on `POST /plates`) is enough on the server side.
+- **Terms screen.** `TermsForm` has two separate boxes, one for the Terms & Agreement and one for PDPA consent. Both start unticked, and Accept stays disabled until both are ticked. Acceptance is saved on the phone with a terms version (`TERMS_VERSION` in `app/src/lib/user.ts`). Changing the version makes users accept again. The terms text is sample wording for the prototype, not legal advice, and needs a lawyer before real use.
+- **Withdrawing consent** deletes every plate on the server first, which also deletes their tickets, and then locks the feature again. Deleting one plate asks for confirmation first.
+- **User id.** There are no accounts yet. Each install creates a random id, saved on the phone and sent as `x-user-id`. Reinstalling the app loses access to its plates, which is acceptable for the prototype; real sign-in is needed before real plates.
+- **Plate check.** The app shows the server's validation result (the server is the trust boundary) as a friendly Thai or English message, instead of duplicating the regex in the app.
+- **Gate simulator (FR-25)** is hidden behind a long-press on the "My licence plates" title. It can also send an "unregistered car" to show the FR-24 fallback.
+- **E-tickets** refresh every 10 s, so the running fee goes up while the screen is open. The spec's §10 suggestion of alerting the user on every entry (against cloned plates) would need push notifications. That is not built yet.

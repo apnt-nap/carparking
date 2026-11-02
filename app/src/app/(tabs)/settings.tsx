@@ -35,6 +35,11 @@ export default function SettingsScreen() {
       ) : (
         <Text style={{ color: t.muted }}>{tr('settings.none')}</Text>
       )}
+
+      <Text style={[styles.h, { color: t.text }]}>{tr('settings.ticketless')}</Text>
+      <Text style={{ color: t.muted }}>{tr('settings.ticketlessHint')}</Text>
+      <Button label={`🚘 ${tr('settings.openTicketless')}`} onPress={() => router.push('/plates')} />
+      <Button label={`🎫 ${tr('plates.tickets')}`} onPress={() => router.push('/tickets')} />
     </ScrollView>
   );
 }
