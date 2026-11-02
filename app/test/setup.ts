@@ -16,7 +16,7 @@ jest.mock('react-native-reanimated', () => {
     default: { View },
     View,
     useReducedMotion: () => true,
-    useSharedValue: (value: unknown) => ({ value }),
+    useSharedValue: (value: unknown) => require('react').useRef({ value }).current, // stable, like the real hook
     useAnimatedStyle: () => ({}),
     withRepeat: (v: unknown) => v,
     withTiming: (v: unknown) => v,

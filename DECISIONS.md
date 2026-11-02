@@ -66,3 +66,9 @@ Non-obvious choices, with the spec section they relate to.
 - **Font.** IBM Plex Sans Thai, loaded with `@expo-google-fonts`. The app waits for it at start-up and falls back to the system font if loading fails.
 - **Tests.** Jest uses lucide's CommonJS build and a small Reanimated stub (`test/setup.ts`), because Reanimated 4's own mock still boots the native runtime.
 - **Not built:** animated number tweens (UI-34 is partly done); push notifications (out of scope, A7). The removed Search and Settings tabs and the `tickets` screen are replaced by Map, Account and Parking & Pay.
+
+## v0.2.1: Expo Go crash fix
+
+- **Bug.** The published v2 crashed at launch in Expo Go with "Cannot find native module 'ExpoSpeechRecognition'". The voice button loaded the package with `require()` inside try/catch, but on a device Metro's module loader reports an error thrown while a module is first loaded as a fatal error itself, so the `catch` never ran. v2 put the mic on the Map tab, which is the first screen, so the app crashed at once.
+- **Fix.** `app/src/lib/voice.ts` is now the only place that touches `expo-speech-recognition`. It asks `requireOptionalNativeModule('ExpoSpeechRecognition')` first (returns null instead of throwing), and only loads the package if the native module exists. In Expo Go, the mic shows "needs a development build". `test/voiceFallback.test.tsx` simulates Expo Go (native module missing, package throws if loaded) and checks that the Map tab renders, that the mic shows the message, and that the package is never loaded.
+- **Other native modules.** In the exported bundle, every other native module the app loads (Location, Localization, Linking, Font, Crypto, Asset, Updates, Maps, SVG, Gesture Handler, Reanimated) is part of Expo Go SDK 58. Speech recognition was the only one missing.
