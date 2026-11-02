@@ -1,0 +1,151 @@
+{
+  "_note": "SAMPLE DATA for the prototype. Coordinates are approximate. Addresses, opening hours and fee rules are made up for testing. Do not show them to users as real.",
+  "malls": [
+    {
+      "id": "siam-paragon",
+      "name_th": "สยามพารากอน",
+      "name_en": "Siam Paragon",
+      "brand": "Siam Paragon",
+      "branch_th": "สยาม",
+      "branch_en": "Siam",
+      "area_th": "ปทุมวัน สยาม",
+      "area_en": "Pathum Wan, Siam",
+      "aliases": ["paragon", "พารากอน", "siam paragon", "สยาม พารากอน"],
+      "lat": 13.7462,
+      "lng": 100.5347,
+      "address_th": "ถนนพระรามที่ 1 แขวงปทุมวัน เขตปทุมวัน กรุงเทพฯ 10330",
+      "address_en": "Rama I Rd, Pathum Wan, Bangkok 10330",
+      "hours": { "open": "10:00", "close": "22:00" },
+      "fees": {
+        "free_minutes": 15,
+        "free_minutes_with_purchase": 120,
+        "hourly_thb": 20,
+        "summary_th": "ฟรี 15 นาที, ฟรี 2 ชั่วโมงเมื่อซื้อสินค้า จากนั้นชั่วโมงละ 20 บาท (ข้อมูลตัวอย่าง)",
+        "summary_en": "15 min free, first 2 hours free with purchase, then 20 THB/hour (sample data)"
+      },
+      "levels": [
+        { "level": "B1", "name_th": "ชั้นใต้ดิน 1", "name_en": "Basement 1" },
+        { "level": "B2", "name_th": "ชั้นใต้ดิน 2", "name_en": "Basement 2" },
+        { "level": "B3", "name_th": "ชั้นใต้ดิน 3", "name_en": "Basement 3" },
+        { "level": "P1", "name_th": "ชั้นจอด 1", "name_en": "Parking 1" },
+        { "level": "P2", "name_th": "ชั้นจอด 2", "name_en": "Parking 2" }
+      ]
+    },
+    {
+      "id": "centralworld",
+      "name_th": "เซ็นทรัลเวิลด์",
+      "name_en": "CentralWorld",
+      "brand": "Central",
+      "branch_th": "ราชประสงค์",
+      "branch_en": "Ratchaprasong",
+      "area_th": "ปทุมวัน ราชประสงค์",
+      "area_en": "Pathum Wan, Ratchaprasong",
+      "aliases": ["central world", "centralworld", "เซ็นทรัล เวิลด์", "เซนทรัลเวิลด์", "ctw"],
+      "lat": 13.7466,
+      "lng": 100.5393,
+      "address_th": "ถนนพระรามที่ 1 แขวงปทุมวัน เขตปทุมวัน กรุงเทพฯ 10330",
+      "address_en": "Rama I Rd, Pathum Wan, Bangkok 10330",
+      "hours": { "open": "10:00", "close": "22:00" },
+      "fees": {
+        "free_minutes": 15,
+        "free_minutes_with_purchase": 120,
+        "hourly_thb": 20,
+        "summary_th": "ฟรี 15 นาที, ฟรี 2 ชั่วโมงเมื่อซื้อสินค้า จากนั้นชั่วโมงละ 20 บาท (ข้อมูลตัวอย่าง)",
+        "summary_en": "15 min free, first 2 hours free with purchase, then 20 THB/hour (sample data)"
+      },
+      "levels": [
+        { "level": "P1", "name_th": "ชั้นจอด 1", "name_en": "Parking 1" },
+        { "level": "P2", "name_th": "ชั้นจอด 2", "name_en": "Parking 2" },
+        { "level": "P3", "name_th": "ชั้นจอด 3", "name_en": "Parking 3" },
+        { "level": "P4", "name_th": "ชั้นจอด 4", "name_en": "Parking 4" },
+        { "level": "P5", "name_th": "ชั้นจอด 5", "name_en": "Parking 5" },
+        { "level": "P6", "name_th": "ชั้นจอด 6", "name_en": "Parking 6" }
+      ]
+    },
+    {
+      "id": "iconsiam",
+      "name_th": "ไอคอนสยาม",
+      "name_en": "ICONSIAM",
+      "brand": "ICONSIAM",
+      "branch_th": "เจริญนคร",
+      "branch_en": "Charoen Nakhon",
+      "area_th": "คลองสาน ริมแม่น้ำเจ้าพระยา",
+      "area_en": "Khlong San, Chao Phraya riverside",
+      "aliases": ["icon siam", "iconsiam", "ไอคอน สยาม", "ไอคอน"],
+      "lat": 13.7266,
+      "lng": 100.5103,
+      "address_th": "ถนนเจริญนคร แขวงคลองต้นไทร เขตคลองสาน กรุงเทพฯ 10600",
+      "address_en": "Charoen Nakhon Rd, Khlong San, Bangkok 10600",
+      "hours": { "open": "10:00", "close": "22:00" },
+      "fees": {
+        "free_minutes": 15,
+        "free_minutes_with_purchase": 180,
+        "hourly_thb": 30,
+        "summary_th": "ฟรี 15 นาที, ฟรี 3 ชั่วโมงเมื่อซื้อสินค้า จากนั้นชั่วโมงละ 30 บาท (ข้อมูลตัวอย่าง)",
+        "summary_en": "15 min free, first 3 hours free with purchase, then 30 THB/hour (sample data)"
+      },
+      "levels": [
+        { "level": "B1", "name_th": "ชั้นใต้ดิน 1", "name_en": "Basement 1" },
+        { "level": "B2", "name_th": "ชั้นใต้ดิน 2", "name_en": "Basement 2" },
+        { "level": "P1", "name_th": "ชั้นจอด 1", "name_en": "Parking 1" },
+        { "level": "P2", "name_th": "ชั้นจอด 2", "name_en": "Parking 2" }
+      ]
+    },
+    {
+      "id": "robinson-lat-krabang",
+      "name_th": "โรบินสัน ไลฟ์สไตล์ ลาดกระบัง",
+      "name_en": "Robinson Lifestyle Lat Krabang",
+      "brand": "Robinson",
+      "branch_th": "ลาดกระบัง",
+      "branch_en": "Lat Krabang",
+      "area_th": "ลาดกระบัง",
+      "area_en": "Lat Krabang",
+      "aliases": ["robinson", "โรบินสัน", "robinson lifestyle", "โรบินสัน ลาดกระบัง"],
+      "lat": 13.7236,
+      "lng": 100.7476,
+      "address_th": "ถนนลาดกระบัง เขตลาดกระบัง กรุงเทพฯ 10520",
+      "address_en": "Lat Krabang Rd, Lat Krabang, Bangkok 10520",
+      "hours": { "open": "10:00", "close": "21:00" },
+      "fees": {
+        "free_minutes": 30,
+        "free_minutes_with_purchase": 180,
+        "hourly_thb": 10,
+        "summary_th": "ฟรี 30 นาที, ฟรี 3 ชั่วโมงเมื่อซื้อสินค้า จากนั้นชั่วโมงละ 10 บาท (ข้อมูลตัวอย่าง)",
+        "summary_en": "30 min free, first 3 hours free with purchase, then 10 THB/hour (sample data)"
+      },
+      "levels": [
+        { "level": "G", "name_th": "ชั้น G", "name_en": "Ground floor" },
+        { "level": "P1", "name_th": "ชั้นจอด 1", "name_en": "Parking 1" },
+        { "level": "P2", "name_th": "ชั้นจอด 2", "name_en": "Parking 2" }
+      ]
+    },
+    {
+      "id": "lotuss-rama-4",
+      "name_th": "โลตัส พระราม 4",
+      "name_en": "Lotus's Rama 4",
+      "brand": "Lotus's",
+      "branch_th": "พระราม 4",
+      "branch_en": "Rama 4",
+      "area_th": "คลองเตย พระราม 4",
+      "area_en": "Khlong Toei, Rama 4",
+      "aliases": ["lotus", "lotuss", "lotus's", "tesco lotus", "โลตัส", "เทสโก้ โลตัส"],
+      "lat": 13.7187,
+      "lng": 100.5607,
+      "address_th": "ถนนพระรามที่ 4 เขตคลองเตย กรุงเทพฯ 10110",
+      "address_en": "Rama IV Rd, Khlong Toei, Bangkok 10110",
+      "hours": { "open": "07:00", "close": "23:00" },
+      "fees": {
+        "free_minutes": 60,
+        "free_minutes_with_purchase": 240,
+        "hourly_thb": 10,
+        "summary_th": "ฟรี 1 ชั่วโมง, ฟรี 4 ชั่วโมงเมื่อซื้อสินค้า จากนั้นชั่วโมงละ 10 บาท (ข้อมูลตัวอย่าง)",
+        "summary_en": "1 hour free, first 4 hours free with purchase, then 10 THB/hour (sample data)"
+      },
+      "levels": [
+        { "level": "G", "name_th": "ชั้น G", "name_en": "Ground floor" },
+        { "level": "P1", "name_th": "ชั้นจอด 1", "name_en": "Parking 1" },
+        { "level": "P2", "name_th": "ชั้นจอด 2", "name_en": "Parking 2" }
+      ]
+    }
+  ]
+}

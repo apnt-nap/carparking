@@ -1,0 +1,10 @@
+{
+  "name": "thai-mall-parking",
+  "private": true,
+  "workspaces": ["server"],
+  "scripts": {
+    "server": "npm run dev -w server",
+    "test": "npm test -w server",
+    "typecheck": "npm run typecheck -w server"
+  }
+}
