@@ -113,3 +113,72 @@ describe('MockParkingProvider state (used by the app demo mode)', () => {
     expect((await b.listTickets('u1'))[0]).toMatchObject({ id: 'id2', status: 'open', mall_id: 'iconsiam' });
   });
 });
+
+describe('layout v2: accounts, wallet and paying (UI-16, UI-21 to UI-25)', () => {
+  let t = new Date('2026-11-07T07:00:00Z');
+  const p = loadMockProvider(new URL('../data/', import.meta.url), { now: () => t });
+  const srv = buildServer(p, { logger: false });
+  const json = async (method: 'GET' | 'POST', url: string, payload?: object, uid?: string) => {
+    const r = await srv.inject({ method, url, payload, headers: uid ? { 'x-user-id': uid } : {} });
+    return { status: r.statusCode, body: r.json() };
+  };
+  afterAll(() => srv.close());
+
+  it('signs up and logs in with email; rejects bad input and wrong passwords', async () => {
+    expect((await json('POST', '/auth/signup', { email: 'nope', password: 'secret1', display_name: 'A' })).body).toEqual({ error: 'invalid_email' });
+    expect((await json('POST', '/auth/signup', { email: 'a@b.co', password: '123', display_name: 'A' })).status).toBe(400);
+    const made = await json('POST', '/auth/signup', { email: 'Asia@Example.com', password: 'secret1', display_name: 'Asia' });
+    expect(made.status).toBe(201);
+    expect(made.body).not.toHaveProperty('password_hash');
+    expect((await json('POST', '/auth/signup', { email: 'asia@example.com', password: 'secret2', display_name: 'B' })).status).toBe(409);
+    expect((await json('POST', '/auth/login', { email: 'asia@example.com', password: 'wrong!' })).status).toBe(401);
+    expect((await json('POST', '/auth/login', { email: ' ASIA@example.com ', password: 'secret1' })).body.id).toBe(made.body.id);
+  });
+
+  it('tops up within 20–5,000 THB, pays a ticket from the wallet, and refuses when the balance is too low', async () => {
+    const acc = await p.signUp('pay@example.com', 'secret1', 'Payer');
+    expect((await json('POST', '/wallet/topup', { amount_thb: 10, method: 'card' }, acc.id)).status).toBe(400);
+    expect((await json('POST', '/wallet/topup', { amount_thb: 5001, method: 'card' }, acc.id)).status).toBe(400);
+    expect((await json('POST', '/wallet/topup', { amount_thb: 50, method: 'bitcoin' }, acc.id)).status).toBe(400);
+
+    const plate = await p.registerPlate(acc.id, '2ขข 2222', 'กรุงเทพมหานคร', { car_model: 'Honda City', car_color: '#1E64C8' });
+    expect(plate.car_model).toBe('Honda City');
+    await expect(p.registerPlate(acc.id, '3คค 3', 'กรุงเทพมหานคร', { car_color: 'blue' })).rejects.toMatchObject({ code: 'invalid_car' });
+
+    const ticket = (await json('POST', '/demo/ticket', { plate_id: plate.id, mall_id: 'siam-paragon', minutes_ago: 135 }, acc.id)).body;
+    expect(ticket.fee_thb).toBe(40); // 135 min − 15 free = 2 started hours × 20
+
+    expect((await json('POST', `/tickets/${ticket.id}/pay`, undefined, acc.id))).toMatchObject({ status: 402, body: { error: 'insufficient_balance' } });
+    expect((await json('POST', '/wallet/topup', { amount_thb: 100, method: 'promptpay' }, acc.id)).body.balance_thb).toBe(100);
+    const paid = (await json('POST', `/tickets/${ticket.id}/pay`, undefined, acc.id)).body;
+    expect(paid).toMatchObject({ status: 'open', paid_thb: 40, paid_from: 'wallet' });
+    expect((await json('POST', `/tickets/${ticket.id}/pay`, undefined, acc.id)).status).toBe(409); // nothing due now
+
+    // 50 minutes later the fee has grown by one hour; the exit gate takes the difference from the wallet
+    t = new Date(t.getTime() + 50 * 60000);
+    const exit = await p.gateEvent({ mall_id: 'siam-paragon', plate_number: '2ขข2222', province: 'กรุงเทพมหานคร', direction: 'exit' });
+    expect(exit.action === 'open_gate' && exit.ticket).toMatchObject({ status: 'closed', fee_thb: 60, paid_thb: 60, paid_from: 'wallet' });
+
+    const wallet = (await json('GET', '/wallet', undefined, acc.id)).body;
+    expect(wallet.balance_thb).toBe(40);
+    expect(wallet.transactions.map((x: { type: string; amount_thb: number }) => `${x.type}:${x.amount_thb}`)).toEqual(['payment:20', 'payment:40', 'topup:100']);
+  });
+
+  it('falls back to the ticket machine at exit when the wallet cannot cover the fee', async () => {
+    const acc = await p.signUp('poor@example.com', 'secret1', 'Poor');
+    const plate = await p.registerPlate(acc.id, 'กข 77', 'ชลบุรี');
+    await p.addDemoTicket(acc.id, plate.id, 'iconsiam', 300);
+    const exit = await p.gateEvent({ mall_id: 'iconsiam', plate_number: 'กข77', province: 'ชลบุรี', direction: 'exit' });
+    expect(exit.action === 'open_gate' && exit.ticket.paid_from).toBe('gate');
+    expect((await p.getWallet(acc.id)).balance_thb).toBe(0);
+  });
+
+  it('reset clears accounts, plates, tickets and wallet; restore keeps them', async () => {
+    const snap = p.snapshot();
+    expect(snap.accounts!.length).toBeGreaterThan(0);
+    p.reset();
+    await expect(p.logIn('asia@example.com', 'secret1')).rejects.toMatchObject({ code: 'bad_credentials' });
+    p.restore(snap);
+    expect((await p.logIn('asia@example.com', 'secret1')).email).toBe('asia@example.com');
+  });
+});

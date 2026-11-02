@@ -91,6 +91,43 @@ export interface Plate {
   number: string;
   province: string;
   consent_at: string;
+  car_model?: string; // UI-38, optional
+  car_color?: string; // UI-38, optional, "#RRGGBB"
+}
+
+export interface CarDetails {
+  car_model?: string;
+  car_color?: string;
+}
+
+/** Demo account (UI-21, A5). password_hash and salt never leave the provider. */
+export interface Account {
+  id: string;
+  email: string;
+  display_name: string;
+  password_hash: string;
+  salt: string;
+  created_at: string;
+}
+
+export type PublicAccount = Omit<Account, 'password_hash' | 'salt'>;
+
+export type PayMethod = 'promptpay' | 'card' | 'wallet';
+
+/** A5: wallet movements. Demo money only (NFR-9). */
+export interface WalletTx {
+  id: string;
+  account_id: string;
+  type: 'topup' | 'payment' | 'refund';
+  amount_thb: number;
+  method: PayMethod;
+  ticket_id?: string;
+  created_at: string;
+}
+
+export interface WalletView {
+  balance_thb: number;
+  transactions: WalletTx[]; // newest first
 }
 
 export interface Ticket {
@@ -99,9 +136,12 @@ export interface Ticket {
   mall_id: string;
   entry_at: string;
   exit_at: string | null;
-  fee_thb: number;
+  fee_thb: number; // running fee while open, final fee once closed
   validated: boolean;
-  status: 'open' | 'paid' | 'closed';
+  status: 'open' | 'closed';
+  paid_thb: number; // UI-16: paid so far from the wallet or at the machine
+  paid_at: string | null;
+  paid_from: 'wallet' | 'gate' | null; // 'gate' = paid at the ticket machine
 }
 
 export interface Origin { lat: number; lng: number }
@@ -123,6 +163,10 @@ export interface MallSummary {
   availability: Availability;
   fees_summary_th: string;
   fees_summary_en: string;
+  fees: FeeRule; // UI-41, UI-42: structured price for cards and the Prices view
+  area_th: string;
+  area_en: string;
+  hours: { open: string; close: string };
 }
 
 export interface FloorSummary {

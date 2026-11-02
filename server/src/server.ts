@@ -1,7 +1,7 @@
 import Fastify, { type FastifyReply, type FastifyRequest } from 'fastify';
 import { WebSocketServer } from 'ws';
 import { hashPlate, isValidPlate, isValidProvince } from './plates.js';
-import type { ParkingProvider } from './provider.js';
+import { ERROR_STATUS, ProviderError, type ParkingProvider } from './provider.js';
 import type { Lang, Origin } from './types.js';
 
 type Query = Record<string, string | undefined>;
@@ -26,6 +26,12 @@ function userId(req: FastifyRequest, reply: FastifyReply): string | undefined {
 /** HTTP and WebSocket API from SYSTEM_REQUIREMENTS.md §6. */
 export function buildServer(provider: ParkingProvider, opts: { logger?: boolean } = {}) {
   const app = Fastify({ logger: opts.logger ?? true });
+
+  // Expected business errors (wrong password, low balance…) become 4xx with a code the app can translate.
+  app.setErrorHandler((err, _req, reply) => {
+    if (err instanceof ProviderError) return reply.code(ERROR_STATUS[err.code]).send({ error: err.code });
+    return reply.send(err);
+  });
 
   app.get('/malls', async (req, reply) => {
     const origin = parseOrigin(req.query as Query);
@@ -56,7 +62,7 @@ export function buildServer(provider: ParkingProvider, opts: { logger?: boolean 
   app.post('/plates', async (req, reply) => {
     const uid = userId(req, reply);
     if (!uid) return reply;
-    const body = (req.body ?? {}) as { number?: unknown; province?: unknown; consent?: unknown };
+    const body = (req.body ?? {}) as { number?: unknown; province?: unknown; consent?: unknown; car_model?: unknown; car_color?: unknown };
     if (body.consent !== true) return reply.code(400).send({ error: 'PDPA consent is required' });
     if (typeof body.number !== 'string' || !isValidPlate(body.number)) {
       return reply.code(400).send({ error: 'plate number must look like "1กก 1234" or "กข 123"' });
@@ -64,7 +70,11 @@ export function buildServer(provider: ParkingProvider, opts: { logger?: boolean 
     if (typeof body.province !== 'string' || !isValidProvince(body.province)) {
       return reply.code(400).send({ error: 'province must be written in Thai' });
     }
-    const plate = await provider.registerPlate(uid, body.number, body.province);
+    const car = {
+      car_model: typeof body.car_model === 'string' ? body.car_model : undefined,
+      car_color: typeof body.car_color === 'string' ? body.car_color : undefined,
+    };
+    const plate = await provider.registerPlate(uid, body.number, body.province, car);
     req.log.info({ plate: hashPlate(plate.number, plate.province) }, 'plate registered');
     return reply.code(201).send(plate);
   });
@@ -99,6 +109,38 @@ export function buildServer(provider: ParkingProvider, opts: { logger?: boolean 
   app.get('/tickets', async (req, reply) => {
     const uid = userId(req, reply);
     return uid ? provider.listTickets(uid) : reply;
+  });
+
+  // Layout v2 (UPDATE_LAYOUT_V2.md A5). Demo accounts: the app sends the account id as x-user-id afterwards.
+  const str = (v: unknown) => (typeof v === 'string' ? v : '');
+  app.post('/auth/signup', async (req, reply) => {
+    const b = (req.body ?? {}) as Record<string, unknown>;
+    return reply.code(201).send(await provider.signUp(str(b.email), str(b.password), str(b.display_name)));
+  });
+  app.post('/auth/login', async (req) => {
+    const b = (req.body ?? {}) as Record<string, unknown>;
+    return provider.logIn(str(b.email), str(b.password));
+  });
+  app.get('/wallet', async (req, reply) => {
+    const uid = userId(req, reply);
+    return uid ? provider.getWallet(uid) : reply;
+  });
+  app.post('/wallet/topup', async (req, reply) => {
+    const uid = userId(req, reply);
+    if (!uid) return reply;
+    const b = (req.body ?? {}) as Record<string, unknown>;
+    if (b.method !== 'promptpay' && b.method !== 'card') return reply.code(400).send({ error: 'invalid_method' });
+    return provider.topUp(uid, Number(b.amount_thb), b.method);
+  });
+  app.post('/tickets/:id/pay', async (req, reply) => {
+    const uid = userId(req, reply);
+    return uid ? provider.payTicket(uid, (req.params as { id: string }).id) : reply;
+  });
+  app.post('/demo/ticket', async (req, reply) => {
+    const uid = userId(req, reply);
+    if (!uid) return reply;
+    const b = (req.body ?? {}) as Record<string, unknown>;
+    return reply.code(201).send(await provider.addDemoTicket(uid, str(b.plate_id), str(b.mall_id), Number(b.minutes_ago) || 0));
   });
 
   // WS /live: bay changes as they happen. Optional ?mall=<id> or ?floor=<id> filter.
