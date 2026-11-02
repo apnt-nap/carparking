@@ -2,9 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Accessibility, ArrowUpDown, Baby, Zap } from 'lucide-react-native';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { FloorPlan } from '../../components/FloorPlan';
-import { Button, QueryState, Segmented } from '../../components/ui';
+import { Button, QueryState, Segmented, Txt as Text } from '../../components/ui';
 import { api, type Bay } from '../../lib/api';
 import { pick } from '../../lib/i18n';
 import { useLiveFloor } from '../../lib/live';
@@ -57,7 +58,7 @@ export default function FloorScreen() {
         {f && (
           <>
             <Text style={{ color: connected ? t.free : t.muted }} accessibilityLiveRegion="polite">
-              {connected ? `● ${tr('floor.live')}` : tr('floor.offline')}
+              {connected ? tr('floor.live') : tr('floor.offline')}
             </Text>
             <Segmented
               options={[{ value: 'ramp', label: tr('floor.nearRamp') }, { value: 'lift', label: tr('floor.nearLift') }]}
@@ -106,10 +107,10 @@ function Legend() {
       {item(box(t.freeFill, t.free), tr('floor.free'))}
       {item(box(t.takenFill, t.taken, '✕'), tr('floor.taken'))}
       {item(<View style={[styles.line, { backgroundColor: t.route }]} />, tr('floor.route'))}
-      {item(<Text>⚡</Text>, tr('bayType.ev'))}
-      {item(<Text>♿</Text>, tr('bayType.accessible'))}
-      {item(<Text>👪</Text>, tr('bayType.family'))}
-      {item(<Text>🛗</Text>, tr('floor.lift'))}
+      {item(<Zap size={18} color={t.text} />, tr('bayType.ev'))}
+      {item(<Accessibility size={18} color={t.text} />, tr('bayType.accessible'))}
+      {item(<Baby size={18} color={t.text} />, tr('bayType.family'))}
+      {item(<ArrowUpDown size={18} color={t.text} />, tr('floor.lift'))}
     </View>
   );
 }

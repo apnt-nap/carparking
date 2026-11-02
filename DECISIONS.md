@@ -51,3 +51,18 @@ Non-obvious choices, with the spec section they relate to.
 - **Saved on the phone.** Plates and tickets are saved in AsyncStorage (`app.demoState`), together with consent and the parked spot. Bay occupancy is re-simulated at each launch, like a live feed.
 - **Imports.** The server's TypeScript uses Node-style `./x.js` imports. `app/metro.config.js` drops the `.js` for imports inside `server/src`, and Jest does the same with `moduleNameMapper`.
 - **Server mode** still works as before (HTTP plus `WS /live`).
+
+## Layout v2 (UPDATE_LAYOUT_V2.md)
+
+- **Accounts.** Demo email accounts live in `MockParkingProvider`, so demo mode (on the phone) and server mode behave the same. Passwords are salted SHA-256 (`expo-crypto` on the phone, Web Crypto on the server). Any hash that isn't a real 64-character digest is rejected, after a test caught a stubbed crypto module that made every password match. This is a demo, not production auth: a real version needs a proper auth service and a slow password hash (Argon2/bcrypt). In server mode the app sends the account id as `x-user-id`.
+- **Login is required** for plates, tickets and the wallet (UI-44). Consent is still stored per phone, and the old random per-install id was removed.
+- **Wallet.** The balance is the sum of the wallet's transactions (top-ups minus payments), so it can't drift from the history. Top-ups must be whole baht from 20 to 5,000. "Pay" takes what is due now, and the ticket stays open. At the exit gate, anything still due is taken from the wallet if the balance covers it; otherwise the ticket is marked "paid at the machine" (FR-24 never blocks the exit).
+- **Cards.** The card form accepts only the test number 4242 4242 4242 4242. Card details are checked on the screen and dropped: never stored, logged or sent (NFR-9). PromptPay shows a placeholder QR.
+- **Session card place (UI-39)** comes from "I parked here". If none is saved for that mall, the card offers "Set where you parked".
+- **History (UI-40)** reuses the session card in its Left state for the detail screen.
+- **Map labels (UI-12).** The base size depends on zoom (full → name only → dot). A label that would overlap a bigger mall's label becomes a dot. Markers use `tracksViewChanges={false}` and are re-keyed when their content changes, for performance.
+- **Theme.** Colour tokens are in `app/src/lib/theme.ts`, with contrast checked by `test/theme.test.ts`. Sky blue is used as a fill only in light mode, because it's too light for text on white. The dark map uses `userInterfaceStyle="dark"` on iOS and a custom Google Maps style on Android.
+- **Icons.** `lucide-react-native` line icons replace all emoji, including inside the floor plan SVG. shortcut: importing from the package root bundles the whole icon set (the Android bundle grew from 4.9 to 7.3 MB); switch to per-icon imports if bundle size matters.
+- **Font.** IBM Plex Sans Thai, loaded with `@expo-google-fonts`. The app waits for it at start-up and falls back to the system font if loading fails.
+- **Tests.** Jest uses lucide's CommonJS build and a small Reanimated stub (`test/setup.ts`), because Reanimated 4's own mock still boots the native runtime.
+- **Not built:** animated number tweens (UI-34 is partly done); push notifications (out of scope, A7). The removed Search and Settings tabs and the `tickets` screen are replaced by Map, Account and Parking & Pay.

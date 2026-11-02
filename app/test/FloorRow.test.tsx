@@ -16,7 +16,7 @@ describe('FloorRow (FR-5 to FR-7)', () => {
     await render(<FloorRow floor={floor} onPress={onPress} />);
     expect(screen.getByText('B2 · Basement 2')).toBeTruthy();
     expect(screen.getByText('42 / 120 free')).toBeTruthy();
-    expect(screen.getByText('★ Best choice')).toBeTruthy();
+    expect(screen.getByText('Best choice')).toBeTruthy();
     expect(screen.getByText(/EV 2\/6/)).toBeTruthy();
     // Screen readers get one label with everything (NFR-4)
     await fireEvent.press(screen.getByLabelText('B2 · Basement 2, 42 of 120 free, Best choice'));

@@ -2,9 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { FloorRow } from '../../components/FloorRow';
-import { QueryState, Segmented } from '../../components/ui';
+import { QueryState, Segmented, Txt as Text } from '../../components/ui';
+import { priceText } from '../../lib/format';
 import { api } from '../../lib/api';
 import { pick } from '../../lib/i18n';
 import { useTheme } from '../../lib/theme';
@@ -29,6 +30,7 @@ export default function MallScreen() {
               <Text style={{ color: t.muted }}>{pick(m, 'address', lang)}</Text>
               <Text style={{ color: t.text }}>{tr('mall.hours', m.hours)}</Text>
               <Text style={[styles.h, { color: t.text }]}>{tr('mall.fees')}</Text>
+              <Text variant="heading">{priceText(m.fees, tr)}</Text>
               <Text style={{ color: t.text }}>{pick(m.fees, 'summary', lang)}</Text>
             </View>
 
@@ -50,6 +52,6 @@ export default function MallScreen() {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12 },
-  card: { padding: 14, borderRadius: 12, gap: 4 },
-  h: { fontSize: 17, fontWeight: '700' },
+  card: { padding: 16, borderRadius: 16, gap: 4 },
+  h: { fontSize: 18, lineHeight: 28 },
 });

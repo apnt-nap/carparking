@@ -2,10 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Button, QueryState, Segmented } from '../components/ui';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Button, QueryState, Segmented, Txt as Text } from '../components/ui';
 import { api, type GateRequest } from '../lib/api';
 import { pick } from '../lib/i18n';
+import { useSession } from '../lib/session';
+import { showToast } from '../lib/toast';
 import { useTheme } from '../lib/theme';
 
 // A car nobody registered, to show the ticket-machine fallback (FR-24).
@@ -18,7 +20,8 @@ export default function SimGateScreen() {
   const lang = i18n.language;
   const qc = useQueryClient();
   const malls = useQuery({ queryKey: ['malls', 'names'], queryFn: () => api.malls() });
-  const plates = useQuery({ queryKey: ['plates'], queryFn: api.plates });
+  const { session } = useSession();
+  const plates = useQuery({ queryKey: ['plates'], queryFn: api.plates, enabled: !!session });
 
   const [mallId, setMallId] = useState<string>();
   const [plateId, setPlateId] = useState<string>();
@@ -31,7 +34,10 @@ export default function SimGateScreen() {
 
   const gate = useMutation({
     mutationFn: (e: GateRequest) => api.gate(e),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tickets'] }),
+    onSuccess: (r) => {
+      if (r.action === 'open_gate') showToast(r.ticket.status === 'open' ? tr('gate.opened') : tr('tickets.fee', { fee: r.ticket.fee_thb }));
+      ['tickets', 'wallet'].forEach((k) => qc.invalidateQueries({ queryKey: [k] }));
+    },
   });
   const result = gate.data;
 
@@ -39,7 +45,7 @@ export default function SimGateScreen() {
     <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.page}>
       <Stack.Screen options={{ title: tr('gate.title') }} />
       <Text style={{ color: t.muted }}>{tr('gate.intro')}</Text>
-      <QueryState loading={malls.isPending || plates.isPending} error={malls.error ?? plates.error} onRetry={() => { malls.refetch(); plates.refetch(); }}>
+      <QueryState loading={malls.isPending || (!!session && plates.isPending)} error={malls.error ?? plates.error} onRetry={() => { malls.refetch(); plates.refetch(); }}>
         <Text style={[styles.h, { color: t.text }]}>{tr('gate.mall')}</Text>
         <View style={styles.wrap}>
           {malls.data?.map((m) => (
@@ -62,7 +68,7 @@ export default function SimGateScreen() {
 
         <Text style={[styles.h, { color: t.text }]}>{tr('gate.direction')}</Text>
         <Segmented
-          options={[{ value: 'entry', label: `⬇ ${tr('gate.entry')}` }, { value: 'exit', label: `⬆ ${tr('gate.exit')}` }]}
+          options={[{ value: 'entry', label: tr('gate.entry') }, { value: 'exit', label: tr('gate.exit') }]}
           value={direction}
           onChange={setDirection}
         />
@@ -93,14 +99,14 @@ export default function SimGateScreen() {
           >
             {result.action === 'open_gate' ? (
               <>
-                <Text style={[styles.big, { color: t.free }]}>🟢 {tr('gate.opened')}</Text>
+                <Text style={[styles.big, { color: t.free }]}>{tr('gate.opened')}</Text>
                 <Text style={{ color: t.text }}>
                   {result.ticket.status === 'open' ? tr('tickets.running', { fee: result.ticket.fee_thb }) : tr('tickets.fee', { fee: result.ticket.fee_thb })}
                 </Text>
               </>
             ) : (
               <>
-                <Text style={[styles.big, { color: t.amber }]}>🎟️ {tr('gate.fallback')}</Text>
+                <Text style={[styles.big, { color: t.amber }]}>{tr('gate.fallback')}</Text>
                 <Text style={{ color: t.text }}>{tr(`gate.reason_${result.reason}`)}</Text>
               </>
             )}

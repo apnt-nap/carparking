@@ -124,8 +124,34 @@ npm run typecheck    # tsc --noEmit for both
 | NFR-4 | Light/dark, 44 pt, not colour-only | ✅ | `app/src/lib/theme.ts`, `ui.tsx`; screen-reader labels on bays and markers |
 | NFR-5 | Plates hashed in logs, deletable | ✅ | `hashPlate` in logs; delete a plate, or withdraw consent to delete all |
 
+
+## Layout v2 checklist (UPDATE_LAYOUT_V2.md)
+
+✅ done · 🟡 partly done (see notes)
+
+| Req | What | Status | Where |
+|---|---|---|---|
+| UI-1, UI-2 | Map / Parking & Pay / Account tabs; raised middle tab | ✅ | `app/src/app/(tabs)/_layout.tsx` |
+| UI-3 to UI-7 | Floating search pill, mic inside, 3-nearest / top-3 pop-up | ✅ | `(tabs)/index.tsx`, `SearchPopup.tsx`, `nearestThree` in `lib/format.ts` |
+| UI-8, UI-9 | Floating My location and Nearby buttons | ✅ | `Fab` in `components/ui.tsx` |
+| UI-10 to UI-13 | Name + free-count map labels, shrinking when zoomed out | ✅ | `MallLabel.tsx`, `labelSizes` in `(tabs)/index.tsx` |
+| UI-14 to UI-20 | Parking & Pay: locked state, ticket, pay, wallet, plates, history, How paying works | ✅ | `(tabs)/parking.tsx` |
+| UI-21, UI-44 | Demo email login, at the top of Account | ✅ | `app/src/app/login.tsx`, `(tabs)/account.tsx` |
+| UI-22, UI-23 | Balance, transactions, demo top-up (PromptPay placeholder, test card only) | ✅ | `topup.tsx`, `lib/card.ts` |
+| UI-24 | Terms (two ticks) and plates, the only place to add a plate | ✅ | `plates.tsx`, `TermsForm.tsx` |
+| UI-25 | Demo tools: add demo e-ticket, gate simulator, reset | ✅ | `demo-ticket.tsx`, `sim-gate.tsx` |
+| UI-26, UI-27 | Settings: language, theme (System/Light/Dark), data source, where I parked | ✅ | `(tabs)/account.tsx`, `lib/theme.ts` |
+| UI-28 to UI-30 | Theme tokens, dark map and floor plans, WCAG AA contrast | ✅ | `lib/theme.ts`, `test/theme.test.ts` |
+| UI-31 to UI-33 | Spacing/radius scale, IBM Plex Sans Thai, line icons (no emoji) | ✅ | `components/ui.tsx`, `lucide-react-native` |
+| UI-34 | Motion with reduced-motion support | 🟡 | Sheets slide, toasts fade, mic pulses, press feedback; numbers update without a tween |
+| UI-35 to UI-39 | My parking card: status, plate/car, place, live timer, fee, Navigate, Pay/End, car drawing | ✅ | `SessionCard.tsx`, `CarTopView.tsx` |
+| UI-40 | Parking history with detail | ✅ | `HistoryList.tsx`, `visit/[id].tsx` |
+| UI-41 to UI-43 | Prices on every mall, Prices view, mall cards with Choose a spot | ✅ | `MallCard.tsx`, `PricesList.tsx` |
+| NFR-6 to NFR-10 | Thai/English, rounded style, 44 pt and labels, demo-only payments, offline demo | ✅ | `lib/i18n.ts`, `test/i18n.test.ts` |
+
 ## Milestones
 
 1. ✅ Mock data and mock server
 2. ✅ Main app
 3. ✅ Plate registration and simulated ticketless entry
+4. ✅ Layout v2: new tabs, modern design, light/dark, wallet, parking status, prices
