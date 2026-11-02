@@ -1,10 +1,17 @@
 {
   "name": "thai-mall-parking",
   "private": true,
-  "workspaces": ["server"],
+  "workspaces": [
+    "server",
+    "app"
+  ],
   "scripts": {
     "server": "npm run dev -w server",
-    "test": "npm test -w server",
-    "typecheck": "npm run typecheck -w server"
+    "test": "npm test -w server && npm test -w app",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w app",
+    "app": "npm start -w app"
+  },
+  "overrides": {
+    "react": "19.3.0"
   }
 }

@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "Thai Mall Parking",
+    "slug": "thai-mall-parking",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-localization",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Shows malls near you and how far away they are."
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Lets you search for malls by voice.",
+          "speechRecognitionPermission": "Turns your voice search into text."
+        }
+      ]
+    ],
+    "scheme": "thaimallparking",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

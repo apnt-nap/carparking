@@ -16,3 +16,22 @@ Non-obvious choices, with the spec section they relate to.
 - **Plates (FR-21, NFR-5).** Plate format is checked as an optional digit, 1–2 Thai consonants and 1–4 digits. The province is only checked to be Thai text, not against the list of 77 provinces. Logs only contain a salted SHA-256 hash. Deleting a plate also deletes its tickets. Data is in memory, so it resets when the server restarts.
 - **Floors data file.** `floors.json` is generated and committed (about 850 KB). A test checks that it matches the generator output, so the two can't drift apart.
 - **WebSocket.** The server uses `ws` directly on Fastify's HTTP server rather than a Fastify plugin, following the spec's stack. Clients can filter with `?mall=` or `?floor=`.
+
+## Milestone 2
+
+- **Expo SDK 58** with Expo Router (`app/src/app/`), React Native 0.88, React 19.3. The root `package.json` pins React to 19.3.0, because a library pulled in 19.3.1 and expo-doctor flags duplicate React copies.
+- **Shared types.** The app imports the server's `server/src/types.ts` with `import type`, so the API types can't drift apart. Type-only imports are removed at build time, so Metro never bundles server code.
+- **Search (FR-16) runs on the server.** The app calls `GET /search`, which already uses fuse.js with the Thai/English alias list. This keeps one search implementation for typed and spoken text, instead of a second copy in the app.
+- **Voice (FR-17).** `expo-speech-recognition` is a native module and isn't in Expo Go. The app loads it lazily: in Expo Go the mic button explains that voice needs a development build, and everything else keeps working. Voice language follows the app language, with a th-TH/en-US toggle. Thai recognition depends on the phone's speech service (the library doesn't list supported locales), so it needs testing on a real device.
+- **Routing (FR-12, FR-13).** Dijkstra runs on the lane graph and respects one-way edges, starting at the entry ramp. "Near the ramp" picks the free bay with the shortest drive. "Near the mall entrance" picks the free bay closest to the lifts, using drive distance as a tie-break. Special bays (EV, accessible, family) are not suggested automatically, but users can tap one to route to it. If a tapped bay is taken before the user arrives, the app falls back to the suggestion.
+- **Live updates (FR-11).** The floor screen subscribes to `WS /live?floor=<id>` and patches the cached floor, reconnecting every 2 s after a drop. Mall screens refetch counts every 5 s, and the map every 15 s, which is simpler than a socket for totals.
+- **Floor plan.** It is drawn as SVG in metres (the plan's viewBox), with pinch-zoom (1–6×) and pan from Gesture Handler 3 and Reanimated. Bays are a memoised layer, so zooming doesn't redraw them.
+- **Accessibility (NFR-4).** Taken bays are grey and crossed out, special bays have icons, and markers show the free count as well as the colour. Buttons and rows are at least 44 pt. Bays and markers have screen-reader labels. A single bay is only about 9 pt wide at full zoom-out, so users zoom in to tap one; the suggested-bay card and "I parked here" button work without tapping a bay.
+- **"I parked here" (FR-15)** is stored on the phone (AsyncStorage). It shows on the map tab, in Settings, and as 🚗 on the floor plan.
+- **Language (FR-19).** It defaults to the phone's language (Thai if the phone is in Thai, otherwise English), and the choice in Settings is saved. A test checks that Thai and English have the same keys.
+- **Maps.** `react-native-maps` uses Apple Maps on iOS and Google Maps on Android. Expo Go works without setup, but an Android release build needs a Google Maps API key in `app.json`.
+- **Not measured yet:** NFR-2 (under 2 s on 4G) needs a real phone. Each screen makes a single small request.
+
+## Milestone 3 (decided ahead)
+
+- **Consent (FR-21).** Asia decided that users must register and accept a Terms & Agreement screen (including PDPA consent) before plate entry can be used. The feature stays locked until they accept. For the prototype, the existing server check (`consent: true` required on `POST /plates`) is enough on the server side.
