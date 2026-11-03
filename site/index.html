@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b2a4a">
+  <title>Thai Mall Parking</title>
+  <meta name="description" content="Find a free parking bay at Thai shopping malls before you arrive. Class presentation demo on sample data.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&display=swap">
+  <style>
+    :root {
+      --bg: #ffffff; --surface: #f3f6fa; --text: #0b1b33; --muted: #4a5b73; --border: #d6dee8;
+      --primary: #0b2a4a; --on-primary: #fff; --accent: #4da3ff; --accent-text: #1e64c8; --tint: #e6f1ff;
+      --success: #1b7f3b; --warning: #9a5b00; --danger: #c62828;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0a1424; --surface: #12203a; --text: #eaf1fb; --muted: #9fb0c8; --border: #26385a;
+        --primary: #4da3ff; --on-primary: #0a1424; --accent: #7cc0ff; --accent-text: #7cc0ff; --tint: #173257;
+        --success: #5fd38a; --warning: #ffc266; --danger: #ff7a7a;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #0a1424; --surface: #12203a; --text: #eaf1fb; --muted: #9fb0c8; --border: #26385a;
+      --primary: #4da3ff; --on-primary: #0a1424; --accent: #7cc0ff; --accent-text: #7cc0ff; --tint: #173257;
+      --success: #5fd38a; --warning: #ffc266; --danger: #ff7a7a;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "IBM Plex Sans Thai", system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; font-size: 16px; }
+    a { color: var(--accent-text); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+    nav { display: flex; align-items: center; gap: 12px; padding: 14px 0; }
+    nav .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--text); text-decoration: none; margin-right: auto; }
+    nav .logo img { width: 32px; height: 32px; }
+    nav a.link { color: var(--muted); text-decoration: none; font-size: 15px; }
+    @media (max-width: 640px) { nav a.link { display: none; } }
+    .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; padding: 32px 0 56px; }
+    @media (max-width: 860px) { .hero { grid-template-columns: 1fr; } .phone { display: none; } }
+    h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.12; margin: 0 0 16px; letter-spacing: -.01em; }
+    .lead { font-size: 19px; color: var(--muted); max-width: 34em; }
+    .th { display: block; font-size: 17px; color: var(--muted); margin-top: 8px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 26px; border-radius: 26px; background: var(--primary); color: var(--on-primary); font-weight: 600; text-decoration: none; font-size: 16px; }
+    .btn.ghost { background: var(--tint); color: var(--accent-text); }
+    .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin: 26px 0 14px; }
+    .note { font-size: 13px; color: var(--muted); }
+    .phone { justify-self: center; width: 360px; height: 740px; border-radius: 48px; padding: 12px; background: #0b1b33; box-shadow: 0 30px 60px rgba(11, 27, 51, .3); position: relative; }
+    .phone iframe { width: 100%; height: 100%; border: 0; border-radius: 38px; background: #fff; }
+    section { padding: 56px 0; border-top: 1px solid var(--border); }
+    h2 { font-size: clamp(26px, 3.4vw, 34px); margin: 0 0 8px; }
+    .sub { color: var(--muted); margin: 0 0 28px; max-width: 42em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+    .card { background: var(--surface); border-radius: 22px; padding: 22px; }
+    .card h3 { margin: 10px 0 6px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); font-size: 15px; }
+    .ico { width: 44px; height: 44px; border-radius: 14px; background: var(--tint); color: var(--accent-text); display: grid; place-items: center; }
+    .ico svg { width: 24px; height: 24px; }
+    .stat { font-size: 40px; font-weight: 700; line-height: 1.1; }
+    .steps { counter-reset: s; }
+    .steps .card { position: relative; padding-top: 56px; }
+    .steps .card::before { counter-increment: s; content: counter(s); position: absolute; top: 18px; left: 22px; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: var(--on-primary); display: grid; place-items: center; font-weight: 700; }
+    .price { border: 2px solid transparent; }
+    .price.featured { border-color: var(--accent); }
+    .price .big { font-size: 34px; font-weight: 700; }
+    .price ul { padding-left: 18px; margin: 12px 0 0; color: var(--muted); font-size: 15px; }
+    .price li { margin-bottom: 6px; }
+    .tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 12px; background: var(--tint); color: var(--accent-text); }
+    .tablewrap { overflow-x: auto; border-radius: 18px; border: 1px solid var(--border); margin-top: 20px; }
+    table { border-collapse: collapse; width: 100%; font-size: 15px; min-width: 540px; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: var(--surface); font-weight: 600; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr:last-child td { border-bottom: 0; }
+    .malls { display: flex; flex-wrap: wrap; gap: 10px; }
+    .mall { background: var(--surface); border-radius: 18px; padding: 12px 16px; min-width: 200px; flex: 1; }
+    .mall b { display: block; }
+    .mall span { font-size: 14px; color: var(--muted); }
+    .script { counter-reset: d; list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    .script li { background: var(--surface); border-radius: 16px; padding: 14px 16px 14px 56px; position: relative; }
+    .script li::before { counter-increment: d; content: counter(d); position: absolute; left: 16px; top: 14px; width: 28px; height: 28px; border-radius: 50%; background: var(--tint); color: var(--accent-text); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+    footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="#"><img src="favicon.svg" alt="">Thai Mall Parking</a>
+      <a class="link" href="#how">How it works</a>
+      <a class="link" href="#malls">For malls</a>
+      <a class="link" href="#pricing">Pricing</a>
+      <a class="link" href="#demo">Demo script</a>
+    </nav>
+
+    <div class="hero">
+      <div>
+        <h1>Know where to park before you reach the mall.</h1>
+        <p class="lead">Live free spaces at Thai shopping malls, the best floor, and a route to an empty bay. Then drive out without a paper ticket.
+          <span class="th">รู้ที่จอดว่างก่อนถึงห้าง เลือกชั้นที่ดีที่สุด นำทางถึงช่องว่าง และออกได้โดยไม่ต้องใช้บัตรจอด</span></p>
+        <div class="ctas">
+          <a class="btn" href="app.html">Open the app demo</a>
+          <a class="btn ghost" href="#pricing">See pricing for malls</a>
+        </div>
+        <p class="note">Prototype for a class presentation. All mall data, fees and payments are made up.</p>
+      </div>
+      <div class="phone" aria-label="Live app demo"><iframe src="app.html" title="Thai Mall Parking app demo" loading="lazy"></iframe></div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <h2>The problem</h2>
+      <p class="sub">On weekends, drivers at big Bangkok malls circle floor after floor looking for a space. The mall knows how many bays are free, but the driver doesn't, until they're already inside.</p>
+      <div class="grid">
+        <div class="card"><div class="stat">10–20 min</div><p>can be lost circling a full car park at peak times (our estimate from mall visits).</p></div>
+        <div class="card"><div class="stat">1 ticket</div><p>per visit: take it, keep it, stamp it, pay at a machine, insert it at the gate.</p></div>
+        <div class="card"><div class="stat">0</div><p>Thai malls in our sample publish a public live-parking feed today.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <p class="sub">Three tabs: Map, Parking &amp; Pay, and Account, in Thai and English, light and dark mode.</p>
+      <div class="grid steps">
+        <div class="card"><h3>Find a mall with space</h3><p>The map shows each mall with its live free count, coloured green, amber or red. Search by text or voice: "พารากอน", "icon siam".</p></div>
+        <div class="card"><h3>Pick the best floor</h3><p>Floors are sorted by free spaces, with EV, accessible and family bays counted. The best floor is tagged.</p></div>
+        <div class="card"><h3>Drive to a free bay</h3><p>A live floor plan suggests the nearest free bay to the ramp or to the mall entrance, and draws the route along one-way lanes.</p></div>
+        <div class="card"><h3>Leave without a ticket</h3><p>The gate reads your registered plate. The fee builds up in the app and is paid from your balance. PDPA consent first.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="malls">
+    <div class="wrap">
+      <h2>Malls in the demo</h2>
+      <p class="sub">Five sample malls with 21 parking floors and about 3,200 simulated bays. Occupancy changes every few seconds, like real sensors.</p>
+      <div class="malls" id="mall-list"></div>
+      <div class="grid" style="margin-top:28px">
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 14a8 8 0 0 1 16 0M8 14a4 4 0 0 1 8 0"/><circle cx="12" cy="14" r="1"/></svg></div><h3>Sensors only</h3><p>We install bay sensors and gateways. Best for malls with no guidance system yet.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></div><h3>API ready</h3><p>The mall's parking system already counts spaces. We connect to its API, so setup is much cheaper.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 12h10"/></svg></div><h3>Ticketless entry</h3><p>Optional link to the gate's plate reader, so registered cars enter and leave with no paper ticket.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <h2>Pricing for malls</h2>
+      <p class="sub">No packages. Each mall pays per sensor and per parking bay. THB, before 7% VAT. Free for drivers.</p>
+      <div class="grid">
+        <div class="card price">
+          <span class="tag">Sensors only</span>
+          <div class="big" style="margin-top:10px">฿500 <span style="font-size:16px;font-weight:400" class="note">per bay / year</span></div>
+          <ul><li>฿550 per sensor, one-time setup</li><li>฿100,000 per mall, site survey and go-live</li><li>Gateways, 4G data, cloud, maintenance included</li></ul>
+        </div>
+        <div class="card price featured">
+          <span class="tag">API ready</span>
+          <div class="big" style="margin-top:10px">฿340 <span style="font-size:16px;font-weight:400" class="note">per bay / year</span></div>
+          <ul><li>฿30 per bay, one-time mapping</li><li>฿85,000 per mall, API integration and testing</li><li>App, live data, floor plans, dashboard, support</li></ul>
+        </div>
+        <div class="card price">
+          <span class="tag">Optional</span>
+          <div class="big" style="margin-top:10px">฿140,000 <span style="font-size:16px;font-weight:400" class="note">per mall</span></div>
+          <ul><li>Ticketless plate entry, linked to the gate</li><li>Adapter for a system with no API: from ฿115,000</li><li>New sensor type driver: from ฿70,000</li></ul>
+        </div>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Example mall</th><th class="n">One-time</th><th class="n">Service per year</th></tr></thead>
+          <tbody>
+            <tr><td>800 bays, sensors only</td><td class="n">฿540,000</td><td class="n">฿400,000</td></tr>
+            <tr><td>800 bays, API ready</td><td class="n">฿109,000</td><td class="n">฿272,000</td></tr>
+            <tr><td>3,000 bays, sensors only, with ticketless entry</td><td class="n">฿1,890,000</td><td class="n">฿1,500,000</td></tr>
+            <tr><td>3,000 bays, API ready, with ticketless entry</td><td class="n">฿315,000</td><td class="n">฿1,020,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Prices include a 40% buffer on our estimated base cost. Our own estimates, not quotes.</p>
+
+      <h3 style="margin-top:40px">Starting as a student team</h3>
+      <div class="grid">
+        <div class="card"><div class="stat">≈ ฿320k</div><p>one-time: company registration, PDPA and contract legal work, demo kit, a free one-floor pilot.</p></div>
+        <div class="card"><div class="stat">≈ ฿370k</div><p>per year: AWS, maps and app stores, 4G SIMs, accounting, insurance, travel, marketing.</p></div>
+        <div class="card"><div class="stat">≈ 850 bays</div><p>to break even, roughly one 800-bay mall on sensors. Total to start with 6 months' reserve: ≈ ฿510k.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Roadmap</h2>
+      <div class="grid">
+        <div class="card"><span class="tag" style="background:var(--surface);border:1px solid var(--success);color:var(--success)">Done</span><h3>Prototype</h3><p>iOS and Android app (Expo) and this web demo on simulated data: map, floors, live floor plans, routing, search, Thai and English.</p></div>
+        <div class="card"><span class="tag" style="background:var(--surface);border:1px solid var(--success);color:var(--success)">Done, simulated</span><h3>Ticketless entry</h3><p>Plate registration with PDPA consent, simulated gate, e-ticket, wallet and demo payments.</p></div>
+        <div class="card"><span class="tag">Next</span><h3>One-floor pilot</h3><p>Install sensors on one floor of one mall, or connect to a mall's existing system, and replace the simulator.</p></div>
+        <div class="card"><span class="tag">Later</span><h3>Real payments</h3><p>A licensed Thai payment provider for PromptPay and cards, and gate integrations mall by mall.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="demo">
+    <div class="wrap">
+      <h2>Demo script (2 minutes)</h2>
+      <p class="sub">A click path for the presentation. Open <a href="app.html">the app demo</a> on a phone or in the frame above.</p>
+      <ol class="script">
+        <li><b>Map:</b> point out the coloured labels and live free counts. Tap the search bar to see the 3 nearest malls, then type <i>พารากอน</i> or tap the mic.</li>
+        <li><b>Mall:</b> tap Siam Paragon, then <i>Choose a spot</i>. Floors are sorted by free spaces, with the best one tagged.</li>
+        <li><b>Floor plan:</b> open the best floor. Show the suggested bay and route, switch to <i>Near the mall entrance</i>, then tap another green bay. Watch bays change live. Tap <i>I parked here</i>.</li>
+        <li><b>Account:</b> top up ฿300 with the PromptPay placeholder, then <i>Set up ticketless entry</i>: tick both boxes and add plate 1กก 1234.</li>
+        <li><b>Parking &amp; Pay:</b> in Account, <i>Add demo e-ticket</i> (entered 200 minutes ago). Show the running fee, tick <i>I bought something</i> to apply free hours, then pay and simulate the exit gate.</li>
+        <li><b>Settings:</b> switch to ไทย and to dark mode to finish.</li>
+      </ol>
+      <p class="note">Tip: Account → Reset demo data before you present. Data stays in the browser only.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">Thai Mall Parking · class project prototype · sample data only, not affiliated with any mall named here. Map © OpenStreetMap contributors, © CARTO.</div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script>
+    (function () {
+      var el = document.getElementById('mall-list');
+      if (!window.DEMO_DATA || !el) return;
+      window.DEMO_DATA.malls.forEach(function (m) {
+        var bays = window.DEMO_DATA.floors.filter(function (f) { return f.mall_id === m.id; });
+        var total = bays.reduce(function (a, f) { return a + f.bays.length; }, 0);
+        var d = document.createElement('div'); d.className = 'mall';
+        d.innerHTML = '<b></b><span></span>';
+        d.querySelector('b').textContent = m.name_en + ' · ' + m.name_th;
+        d.querySelector('span').textContent = bays.length + ' floors · ' + total.toLocaleString() + ' bays · ' + m.fees.hourly_thb + ' THB/h';
+        el.appendChild(d);
+      });
+    })();
+  </script>
+</body>
+</html>

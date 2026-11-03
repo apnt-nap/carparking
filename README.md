@@ -61,6 +61,16 @@ npm run app          # Expo dev server; scan the QR code with Expo Go
 5. Choose **Unregistered car** to see the ticket-machine fallback.
 6. **Withdraw consent** deletes every plate and ticket and locks the feature again.
 
+## Demo website (for presentations)
+
+A browser version of the app plus a short pitch page, in `site/` (plain HTML, CSS and JavaScript, no build step). It runs entirely in the browser on the same sample data, so it works as a link on any phone or laptop.
+
+- Live link once GitHub Pages is on: **https://apnt-nap.github.io/carparking/** (pitch page) and **https://apnt-nap.github.io/carparking/app.html** (the app on its own, best on a phone).
+- Turn it on once: repo **Settings → Pages → Build and deployment → Source: GitHub Actions**. After that, every push to `main` that touches `site/` redeploys it (`.github/workflows/pages.yml`). You can also run the workflow by hand from the Actions tab.
+- Try it locally: `npx serve site` (or `python3 -m http.server -d site`) and open http://localhost:3000 (or :8000).
+- After editing `server/data/*.json`, refresh the website data with `node scripts/build-site-data.mjs`.
+- The pitch page includes a 2-minute demo script. Deep links: `app.html#parking`, `app.html#account`, `app.html#mall=iconsiam`.
+
 ## Open the published demo (no PC needed)
 
 The offline demo is published to Expo (EAS Update, branch and channel `demo`, project `@apnt-nt/thai-mall-parking`).
