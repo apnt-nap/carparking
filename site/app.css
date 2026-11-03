@@ -134,3 +134,4 @@ ol.how li { margin-bottom: 8px; }
 @keyframes dash { to { stroke-dashoffset: -3; } }
 .pill > svg { width: 20px; height: 20px; color: var(--muted); flex-shrink: 0; }
 .row .title, .row .sub { display: block; }
+:root[data-theme="dark"] .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.9) contrast(.9); }

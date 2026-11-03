@@ -246,17 +246,17 @@
   const isDark = () => S.theme === 'dark' || (S.theme === 'system' && mq.matches);
   const applyTheme = () => {
     document.documentElement.dataset.theme = isDark() ? 'dark' : 'light';
-    if (tiles) { const url = tileUrl(); if (tiles._url !== url) tiles.setUrl(url); }
   };
   mq.addEventListener?.('change', applyTheme);
 
   // ---------- map (UI-3 to UI-13) ----------
   let map = null, tiles = null; const markers = new Map();
-  const tileUrl = () => `https://{s}.basemaps.cartocdn.com/${isDark() ? 'dark_all' : 'rastertiles/voyager'}/{z}/{x}/{y}{r}.png`;
+  // OpenStreetMap's own tiles: free, no API key. Dark mode darkens them with a CSS filter (app.css).
+  const tileUrl = () => 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   const initMap = () => {
     if (!window.L) { $('#map').innerHTML = '<p class="muted" style="padding:90px 20px">Map library could not load. The rest of the demo still works.</p>'; return; }
     map = L.map('map', { zoomControl: false, attributionControl: true }).setView([13.735, 100.585], 12);
-    tiles = L.tileLayer(tileUrl(), { maxZoom: 19, subdomains: 'abcd', attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(map);
+    tiles = L.tileLayer(tileUrl(), { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }).addTo(map);
     L.circleMarker([DEMO_LOC.lat, DEMO_LOC.lng], { radius: 8, color: '#fff', weight: 3, fillColor: '#1e64c8', fillOpacity: 1 }).addTo(map);
     for (const m of D.malls) {
       const mk = L.marker([m.lat, m.lng], { icon: L.divIcon({ className: '', html: '', iconSize: [0, 0] }), keyboard: true, title: nm(m) })
